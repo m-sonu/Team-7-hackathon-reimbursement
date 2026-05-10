@@ -1,9 +1,19 @@
 import { login } from '#/lib/api/auth'
-import type { LoginSchema } from '#/lib/types'
+import type {
+  ApiError,
+  LoginResponse,
+  LoginSchema,
+  ResponseWrapper,
+} from '#/lib/types'
 import { useMutation } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
 
 export function useLogin() {
-  return useMutation({
-    mutationFn: (data: LoginSchema) => login(data),
+  return useMutation<
+    ResponseWrapper<LoginResponse>,
+    AxiosError<ApiError>,
+    LoginSchema
+  >({
+    mutationFn: (data) => login(data),
   })
 }

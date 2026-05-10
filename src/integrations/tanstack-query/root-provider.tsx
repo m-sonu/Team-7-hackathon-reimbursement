@@ -7,7 +7,11 @@ export function getContext() {
       queries: {
         staleTime: DEFAULT_STALE_TIME,
         gcTime: DEFAULT_GC_TIME,
-        retry: 1,
+        retry: (failureCount, error: any) => {
+          const status = error?.response?.status
+          if (status === 401 || status === 403) return false
+          return failureCount < 1
+        },
         refetchOnWindowFocus: false,
       },
       mutations: {
