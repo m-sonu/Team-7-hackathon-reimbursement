@@ -21,3 +21,11 @@ export function fetchUserBills(
     token,
   })
 }
+
+export function createBill(data: FormData, token: string) {
+  return axios.formdataPost<{ message: string }>({
+    url: urls.bills,
+    data,
+    token,
+  })
+}

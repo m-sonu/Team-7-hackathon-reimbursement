@@ -72,6 +72,20 @@ export type Translations = {
     review: string
     reimbursedSuccess: string
   }
+  uploadExpense: {
+    subtitle: string
+    formTitle: string
+    currency: string
+    dragAndDrop: string
+    orClickToBrowse: string
+    browseFiles: string
+    uploadedFiles: string
+    successMessage: string
+    errFilesRequired: string
+    errFilesMax: string
+    errImageOnly: string
+    removeFile: string
+  }
   notFound: {
     title: string
     description: string

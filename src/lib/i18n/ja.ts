@@ -81,6 +81,20 @@ const ja: Translations = {
     review: '確認',
     reimbursedSuccess: '精算済みに設定しました。',
   },
+  uploadExpense: {
+    subtitle: 'レシート画像をアップロードするとAIが詳細を抽出します',
+    formTitle: 'タイトル',
+    currency: '通貨',
+    dragAndDrop: 'レシート画像をドラッグ＆ドロップ',
+    orClickToBrowse: 'またはクリックして参照',
+    browseFiles: 'ファイルを選択',
+    uploadedFiles: 'アップロード済みファイル',
+    successMessage: '経費を申請しました。',
+    errFilesRequired: 'レシート画像を1枚以上アップロードしてください。',
+    errFilesMax: 'ファイルは最大3枚までです。',
+    errImageOnly: 'JPG・PNG・WebP形式の画像のみ使用できます。',
+    removeFile: '削除',
+  },
   notFound: {
     title: 'ページが見つかりません',
     description:

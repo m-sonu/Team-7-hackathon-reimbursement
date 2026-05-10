@@ -81,6 +81,20 @@ const en: Translations = {
     review: 'Review',
     reimbursedSuccess: 'Marked as reimbursed successfully.',
   },
+  uploadExpense: {
+    subtitle: 'Upload receipt images and our AI will extract the details',
+    formTitle: 'Title',
+    currency: 'Currency',
+    dragAndDrop: 'Drag and drop receipt images',
+    orClickToBrowse: 'or click to browse',
+    browseFiles: 'Browse Files',
+    uploadedFiles: 'Uploaded Files',
+    successMessage: 'Expense submitted successfully.',
+    errFilesRequired: 'Please upload at least one receipt image.',
+    errFilesMax: 'You can upload a maximum of 3 files.',
+    errImageOnly: 'Only image files (JPG, PNG, WebP) are allowed.',
+    removeFile: 'Remove',
+  },
   notFound: {
     title: 'Page not found',
     description:

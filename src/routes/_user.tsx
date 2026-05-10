@@ -79,12 +79,12 @@ function UserLayout() {
             >
               {t.common.dashboard}
             </Link>
-            <a
-              href="/upload-expense"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            <Link
+              to="/upload-expense"
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 [&.active]:bg-indigo-50 [&.active]:text-indigo-700"
             >
               {t.common.uploadExpense}
-            </a>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">

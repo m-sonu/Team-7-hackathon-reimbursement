@@ -25,7 +25,7 @@ import { useUserBills } from '#/hooks/queries/bills'
 import { useEmployeeDashboard } from '#/hooks/queries/user'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { AlertTriangle, Filter, Plus } from 'lucide-react'
 import * as React from 'react'
 
@@ -138,12 +138,12 @@ function DashboardPage() {
             {t.userDashboard.subtitle}
           </p>
         </div>
-        <a href="/upload-expense">
+        <Link to="/upload-expense">
           <Button className="gap-1.5 bg-indigo-700 hover:bg-indigo-800">
             <Plus className="size-4" />
             {t.userDashboard.newExpense}
           </Button>
-        </a>
+        </Link>
       </div>
 
       {/* Stats Cards */}
