@@ -21,11 +21,7 @@ import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
 
@@ -77,17 +73,19 @@ function AdminDashboardPage() {
   )
 
   const { data: res, isLoading } = useEmployeeBills(token, filters)
-  const employees = res?.data?.data ?? []
+  const employees = res?.data.data ?? []
 
   function actionStatusBadge(empStatus: BillStatus) {
-    if (empStatus === 'paid') {
+    if (empStatus === 'reimbursed') {
       return <Badge variant="success">{t.common.statusLabels.done}</Badge>
     }
     if (empStatus === 'verified') {
       return <Badge variant="info">{t.common.statusLabels.verified}</Badge>
     }
     if (empStatus === 'rejected') {
-      return <Badge variant="destructive">{t.common.statusLabels.rejected}</Badge>
+      return (
+        <Badge variant="destructive">{t.common.statusLabels.rejected}</Badge>
+      )
     }
     return <Badge variant="warning">{t.common.statusLabels.pending}</Badge>
   }
@@ -158,7 +156,7 @@ function AdminDashboardPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((__, j) => (
                       <TableCell key={j}>
                         <div className="h-4 animate-pulse rounded bg-gray-100" />
                       </TableCell>

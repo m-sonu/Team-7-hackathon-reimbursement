@@ -2,6 +2,13 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '#/components/ui/pagination'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -21,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '#/components/ui/tooltip'
+import { useCategories } from '#/hooks/queries/categories'
 import { useUserBills } from '#/hooks/queries/bills'
 import { useEmployeeDashboard } from '#/hooks/queries/user'
 import { useI18n } from '#/lib/i18n'
@@ -41,10 +49,16 @@ function StatusBadge({
 }: {
   status: BillStatus
   rejectReason?: string | null
-  labels: Record<BillStatus, { label: string; variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning' }>
+  labels: Record<
+    BillStatus,
+    {
+      label: string
+      variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning'
+    }
+  >
   rejectReasonLabel: string
 }) {
-  const config = labels[status] ?? { label: status, variant: 'muted' as const }
+  const config = labels[status]
 
   if (status === 'rejected' && rejectReason) {
     return (
@@ -56,7 +70,9 @@ function StatusBadge({
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-56">
-          <p className="font-semibold text-gray-900 mb-1">{rejectReasonLabel}</p>
+          <p className="font-semibold text-gray-900 mb-1">
+            {rejectReasonLabel}
+          </p>
           <p>{rejectReason}</p>
         </TooltipContent>
       </Tooltip>
@@ -66,48 +82,69 @@ function StatusBadge({
   return <Badge variant={config.variant}>{config.label}</Badge>
 }
 
+function toDateString(d: Date) {
+  return d.toISOString().split('T')[0]
+}
+
 function DashboardPage() {
   const context = Route.useRouteContext()
   const { t } = useI18n()
   const token = context.token ?? ''
   const userId = context.user?.id ?? 0
 
-  const currentMonth = new Date().getMonth() + 1
-  const [month, setMonth] = React.useState(String(currentMonth))
-  const [status, setStatus] = React.useState('all')
-
-  const MONTHS = React.useMemo(
-    () => t.common.months.map((label, i) => ({ value: String(i + 1), label })),
-    [t],
+  const today = new Date()
+  const defaultStart = toDateString(
+    new Date(today.getFullYear(), today.getMonth(), 1),
   )
+  const defaultEnd = toDateString(today)
+
+  const [startDate, setStartDate] = React.useState(defaultStart)
+  const [endDate, setEndDate] = React.useState(defaultEnd)
+  const [status, setStatus] = React.useState('all')
+  const [categoryId, setCategoryId] = React.useState('all')
+  const [page, setPage] = React.useState(1)
+
+  const resetPage = () => setPage(1)
 
   const STATUS_OPTIONS = React.useMemo(
     () => [
       { value: 'all', label: t.common.allStatuses },
-      { value: 'pending', label: t.common.statusLabels.submitted },
+      { value: 'pending', label: t.common.statusLabels.pending },
+      { value: 'under review', label: t.common.statusLabels.submitted },
       { value: 'verified', label: t.common.statusLabels.verified },
       { value: 'rejected', label: t.common.statusLabels.rejected },
-      { value: 'paid', label: t.common.statusLabels.paid },
+      { value: 'reimbursed', label: t.common.statusLabels.paid },
     ],
     [t],
   )
 
-  const STATUS_LABELS: Record<BillStatus, { label: string; variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning' }> = React.useMemo(
+  const STATUS_LABELS: Record<
+    BillStatus,
+    {
+      label: string
+      variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning'
+    }
+  > = React.useMemo(
     () => ({
+      pending: { label: t.common.statusLabels.pending, variant: 'muted' },
+      'under review': { label: t.common.statusLabels.submitted, variant: 'warning' },
       verified: { label: t.common.statusLabels.verified, variant: 'info' },
-      pending: { label: t.common.statusLabels.submitted, variant: 'muted' },
       rejected: { label: t.common.statusLabels.rejected, variant: 'destructive' },
-      paid: { label: t.common.statusLabels.paid, variant: 'success' },
+      reimbursed: { label: t.common.statusLabels.paid, variant: 'success' },
     }),
     [t],
   )
 
   const filters = React.useMemo(
     () => ({
-      month: Number(month),
+      start_date: startDate,
+      end_date: endDate,
       ...(status !== 'all' && { status }),
+      ...(categoryId !== 'all' && { category_id: Number(categoryId) }),
+      page,
+      per_page: 15,
     }),
-    [month, status],
+    [startDate, endDate, status, categoryId, page],
   )
 
   const { data: dashboardRes, isLoading: isDashboardLoading } =
@@ -119,13 +156,12 @@ function DashboardPage() {
     filters,
   )
 
+  const { data: categoriesRes } = useCategories(token)
+
   const dashboard = dashboardRes?.data
   const bills = billsRes?.data ?? []
-
-  const uniqueCategories = React.useMemo(() => {
-    const cats = bills.map((b) => b.category).filter(Boolean) as string[]
-    return [...new Set(cats)]
-  }, [bills])
+  const meta = billsRes?.meta
+  const categories = categoriesRes?.data ?? []
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -195,7 +231,7 @@ function DashboardPage() {
                   />
                 ))}
               </div>
-            ) : dashboard?.category_wise_amounts?.length ? (
+            ) : dashboard?.category_wise_amounts.length ? (
               <ul className="space-y-1.5">
                 {dashboard.category_wise_amounts.map((cat) => (
                   <li
@@ -223,34 +259,64 @@ function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3.5">
           <Filter className="size-4 text-gray-400 shrink-0" />
 
-          <Select value={month} onValueChange={setMonth}>
-            <SelectTrigger className="w-32" size="sm">
-              <SelectValue placeholder={t.common.month} />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTHS.map((m) => (
-                <SelectItem key={m.value} value={m.value}>
-                  {m.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Date range */}
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            {t.userDashboard.dateFrom}
+            <input
+              type="date"
+              value={startDate}
+              max={endDate}
+              onChange={(e) => {
+                setStartDate(e.target.value)
+                resetPage()
+              }}
+              className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+          </label>
 
-          <Select defaultValue="all">
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            {t.userDashboard.dateTo}
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={(e) => {
+                setEndDate(e.target.value)
+                resetPage()
+              }}
+              className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+          </label>
+
+          {/* Category filter */}
+          <Select
+            value={categoryId}
+            onValueChange={(v) => {
+              setCategoryId(v)
+              resetPage()
+            }}
+          >
             <SelectTrigger className="w-36" size="sm">
               <SelectValue placeholder={t.common.category} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t.common.allCategories}</SelectItem>
-              {uniqueCategories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={status} onValueChange={setStatus}>
+          {/* Status filter */}
+          <Select
+            value={status}
+            onValueChange={(v) => {
+              setStatus(v)
+              resetPage()
+            }}
+          >
             <SelectTrigger className="w-36" size="sm">
               <SelectValue placeholder={t.common.status} />
             </SelectTrigger>
@@ -319,18 +385,50 @@ function DashboardPage() {
                     />
                   </TableCell>
                   <TableCell>
-                    <a
-                      href={`/user/bill/${bill.id}`}
+                    <Link
+                      to="/bill/$billId"
+                      params={{ billId: String(bill.id) }}
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
                     >
                       {t.common.viewDetails}
-                    </a>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
+
+        {/* Pagination */}
+        {meta && (
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">
+            <p className="text-sm text-gray-500">
+              {t.userDashboard.pageInfo
+                .replace('{current}', String(meta.current_page))
+                .replace('{total}', String(meta.last_page))}
+            </p>
+            <Pagination className="w-auto">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => p - 1)}
+                    disabled={meta.current_page <= 1}
+                  >
+                    {t.userDashboard.prevPage}
+                  </PaginationPrevious>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={meta.current_page >= meta.last_page}
+                  >
+                    {t.userDashboard.nextPage}
+                  </PaginationNext>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </Card>
     </div>
   )

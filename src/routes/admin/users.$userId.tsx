@@ -22,11 +22,7 @@ import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Eye } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -74,22 +70,27 @@ function AdminUserDetailPage() {
     () => [
       { value: 'all', label: t.common.allStatuses },
       { value: 'pending', label: t.common.statusLabels.pending },
+      { value: 'under review', label: t.common.statusLabels.submitted },
       { value: 'verified', label: t.common.statusLabels.verified },
       { value: 'rejected', label: t.common.statusLabels.rejected },
-      { value: 'paid', label: t.common.statusLabels.paid },
+      { value: 'reimbursed', label: t.common.statusLabels.paid },
     ],
     [t],
   )
 
   const STATUS_CONFIG: Record<
     BillStatus,
-    { label: string; variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning' }
+    {
+      label: string
+      variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning'
+    }
   > = React.useMemo(
     () => ({
+      pending: { label: t.common.statusLabels.pending, variant: 'muted' },
+      'under review': { label: t.common.statusLabels.submitted, variant: 'warning' },
       verified: { label: t.common.statusLabels.verified, variant: 'info' },
-      pending: { label: t.common.statusLabels.pending, variant: 'warning' },
       rejected: { label: t.common.statusLabels.rejected, variant: 'destructive' },
-      paid: { label: t.common.statusLabels.paid, variant: 'success' },
+      reimbursed: { label: t.common.statusLabels.paid, variant: 'success' },
     }),
     [t],
   )
@@ -221,7 +222,7 @@ function AdminUserDetailPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((__, j) => (
                       <TableCell key={j}>
                         <div className="h-4 animate-pulse rounded bg-gray-100" />
                       </TableCell>
@@ -239,10 +240,7 @@ function AdminUserDetailPage() {
                 </TableRow>
               ) : (
                 bills.map((bill) => {
-                  const statusCfg = STATUS_CONFIG[bill.status] ?? {
-                    label: bill.status,
-                    variant: 'muted' as const,
-                  }
+                  const statusCfg = STATUS_CONFIG[bill.status]
                   return (
                     <TableRow key={bill.id}>
                       <TableCell className="text-gray-600">

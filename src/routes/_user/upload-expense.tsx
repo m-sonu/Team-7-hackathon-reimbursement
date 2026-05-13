@@ -136,9 +136,12 @@ function UploadExpensePage() {
     createBill(
       { data: formData, token },
       {
-        onSuccess: () => {
+        onSuccess: (res) => {
           toast.success(t.uploadExpense.successMessage)
-          navigate({ to: '/dashboard' })
+          navigate({
+            to: '/review-batch/$batchId',
+            params: { batchId: String(res.batch_id) },
+          })
         },
         onError: (error) => {
           const msg = error.response?.data?.message

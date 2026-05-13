@@ -49,6 +49,11 @@ export type Translations = {
     colDate: string
     colTitle: string
     colAmount: string
+    dateFrom: string
+    dateTo: string
+    prevPage: string
+    nextPage: string
+    pageInfo: string
   }
   adminDashboard: {
     title: string
@@ -85,6 +90,56 @@ export type Translations = {
     errFilesMax: string
     errImageOnly: string
     removeFile: string
+  }
+  billDetail: {
+    receiptPreview: string
+    expenseDetails: string
+    amount: string
+    approvedAmount: string
+    date: string
+    category: string
+    title: string
+    billNumber: string
+    vatNumber: string
+    vendor: string
+    phone: string
+    statusTimeline: string
+    stepSubmitted: string
+    stepUnderReview: string
+    stepReviewed: string
+    stepReimbursed: string
+    viewReceipt: string
+    noReceipt: string
+    loadingError: string
+  }
+  reviewBatch: {
+    title: string
+    subtitle: string
+    processingTitle: string
+    processingSubtitle: string
+    validBills: string
+    invalidBills: string
+    extractedData: string
+    amount: string
+    billNo: string
+    vatNo: string
+    validationError: string
+    totalAmount: string
+    submitForReimbursement: string
+    submitSuccess: string
+    monthNote: string
+    noValidBills: string
+  }
+  submitSuccess: {
+    heading: string
+    subtitle: string
+    detailsTitle: string
+    labelTitle: string
+    labelDate: string
+    labelCategory: string
+    labelAmount: string
+    submitAnother: string
+    backToDashboard: string
   }
   notFound: {
     title: string

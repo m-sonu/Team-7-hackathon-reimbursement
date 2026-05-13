@@ -48,7 +48,7 @@ export type DashboardData = {
   category_wise_amounts: CategoryAmount[]
 }
 
-export type BillStatus = 'pending' | 'verified' | 'rejected' | 'paid'
+export type BillStatus = 'pending' | 'under review' | 'verified' | 'rejected' | 'reimbursed'
 
 export type UserBill = {
   id: number
@@ -97,6 +97,71 @@ export type EmployeeBill = {
 export type Category = {
   id: number
   name: string
+}
+
+export type BillDetailItem = {
+  id: number
+  bill_no: string | null
+  vat_no: string | null
+  amount: string
+  approved_amount: string
+  status: string
+  is_valid: boolean
+  validation_error: string | null
+  file_preview_url: string | null
+  category: { id: number; name: string } | null
+  billUploadBatch: {
+    id: number
+    title: string
+    currency: string
+    category: string | null
+  } | null
+  vendorContact: {
+    id: number
+    company_name: string | null
+    phone: string | null
+  } | null
+  created_at: string
+  updated_at: string
+}
+
+export type BatchDetail = {
+  id: number
+  title: string
+  category: string | null
+  created_date: string
+  approved_amount: string
+  bills: BillDetailItem[]
+}
+
+export type BatchPreviewBill = {
+  id: number
+  bill_no: string | null
+  vat_no: string | null
+  amount: string
+  approved_amount: string
+  status: string
+  is_valid: boolean
+  validation_error: string | null
+  file_preview_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type BatchPreview = {
+  id: number
+  title: string
+  currency: string
+  category: string | null
+  submitted_at: string
+  ai_processing: boolean
+  totals: {
+    valid: number
+    invalid: number
+    combined: number
+  }
+  valid_bills: BatchPreviewBill[]
+  invalid_bills: BatchPreviewBill[]
 }
 
 export type AdminEmployeeBillsResponse = {
