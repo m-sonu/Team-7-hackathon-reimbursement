@@ -1,12 +1,66 @@
-import { fetchEmployeeBills, type EmployeeBillsFilters } from '#/lib/api/admin'
-import type { AdminEmployeeBillsResponse, ApiError } from '#/lib/types'
-import { useQuery } from '@tanstack/react-query'
+import { fetchEmployeeBills, fetchAdminCategoryWiseBills, fetchAdminCategoryBills, verifyBill, bulkReimburse } from '#/lib/api/admin'
+import type { EmployeeBillsFilters, AdminCategoryWiseBillsFilters } from '#/lib/api/admin'
+import type { AdminCategoryBillsResponse, AdminEmployeeBillsResponse, ApiError, PaginatedResponse, UserBill } from '#/lib/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
-export function useEmployeeBills(token: string, filters?: EmployeeBillsFilters) {
+export function useEmployeeBills(
+  token: string,
+  filters?: EmployeeBillsFilters,
+) {
   return useQuery<AdminEmployeeBillsResponse, AxiosError<ApiError>>({
     queryKey: ['employeeBills', filters],
     queryFn: () => fetchEmployeeBills(token, filters),
     enabled: !!token,
+  })
+}
+
+export function useAdminCategoryWiseBills(
+  userId: number,
+  token: string,
+  filters?: AdminCategoryWiseBillsFilters,
+) {
+  return useQuery<PaginatedResponse<UserBill>, AxiosError<ApiError>>({
+    queryKey: ['adminCategoryWiseBills', userId, filters],
+    queryFn: () => fetchAdminCategoryWiseBills(userId, token, filters),
+    enabled: !!userId && !!token,
+  })
+}
+
+export function useAdminCategoryBills(
+  userId: number,
+  categoryId: number,
+  token: string,
+) {
+  return useQuery<AdminCategoryBillsResponse, AxiosError<ApiError>>({
+    queryKey: ['adminCategoryBills', userId, categoryId],
+    queryFn: () => fetchAdminCategoryBills(userId, categoryId, token),
+    enabled: !!userId && !!categoryId && !!token,
+  })
+}
+
+export function useVerifyBill(userId: number, categoryId: number) {
+  const queryClient = useQueryClient()
+  return useMutation<
+    { success: boolean; message: string },
+    AxiosError<ApiError>,
+    { billId: number; token: string }
+  >({
+    mutationFn: ({ billId, token }) => verifyBill(billId, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['adminCategoryBills', userId, categoryId],
+      })
+    },
+  })
+}
+
+export function useBulkReimburse() {
+  return useMutation<
+    { success: boolean; message: string },
+    AxiosError<ApiError>,
+    { batchId: number; token: string }
+  >({
+    mutationFn: ({ batchId, token }) => bulkReimburse(batchId, token),
   })
 }

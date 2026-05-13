@@ -4,7 +4,12 @@ export const urls = {
   userDashboard: (id: number) => `/user/${id}/dashboard`,
   userBills: (id: number) => `/user/${id}/bills`,
   userBillDetails: (id: number) => `/user/bill/${id}`,
-  employeeBills: '/employee/bills',
+  employeeBills: '/admin/employee/bills',
+  adminCategoryWiseBills: (userId: number) => `/admin/categoryWiseBills/${userId}`,
+  adminCategoryBills: (userId: number, categoryId: number) =>
+    `/admin/categoryWiseBills/${userId}/${categoryId}`,
+  adminVerifyBill: (billId: number) => `/admin/bills/${billId}/verify`,
+  adminBulkReimburse: (batchId: number) => `/admin/bills/${batchId}/bulk-reimburse`,
   categories: '/categories',
   bills: '/bills',
   batchPreview: (id: number) => `/batches/${id}/preview`,

@@ -3,6 +3,13 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent } from '#/components/ui/card'
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '#/components/ui/pagination'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,12 +24,12 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
-import { useUserBills } from '#/hooks/queries/bills'
+import { useAdminCategoryWiseBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate, Link } from '@tanstack/react-router'
 import { ArrowLeft, Eye } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -60,6 +67,9 @@ function AdminUserDetailPage() {
   const currentMonth = new Date().getMonth() + 1
   const [month, setMonth] = React.useState(String(currentMonth))
   const [status, setStatus] = React.useState('all')
+  const [page, setPage] = React.useState(1)
+
+  const resetPage = () => setPage(1)
 
   const MONTHS = React.useMemo(
     () => t.common.months.map((label, i) => ({ value: String(i + 1), label })),
@@ -99,17 +109,20 @@ function AdminUserDetailPage() {
     () => ({
       month: Number(month),
       ...(status !== 'all' && { status }),
+      page,
+      per_page: 15,
     }),
-    [month, status],
+    [month, status, page],
   )
 
-  const { data: billsRes, isLoading } = useUserBills(
+  const { data: billsRes, isLoading } = useAdminCategoryWiseBills(
     Number(userId),
     token,
     filters,
   )
 
   const bills = billsRes?.data ?? []
+  const meta = billsRes?.meta
 
   const handleMarkReimbursed = () => {
     toast.success(t.adminUserDetail.reimbursedSuccess)
@@ -131,7 +144,13 @@ function AdminUserDetailPage() {
           </button>
 
           <div className="flex items-center gap-3">
-            <Select value={month} onValueChange={setMonth}>
+            <Select
+              value={month}
+              onValueChange={(v) => {
+                setMonth(v)
+                resetPage()
+              }}
+            >
               <SelectTrigger className="w-32" size="sm">
                 <SelectValue placeholder={t.common.month} />
               </SelectTrigger>
@@ -144,7 +163,13 @@ function AdminUserDetailPage() {
               </SelectContent>
             </Select>
 
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={(v) => {
+                setStatus(v)
+                resetPage()
+              }}
+            >
               <SelectTrigger className="w-32" size="sm">
                 <SelectValue placeholder={t.common.status} />
               </SelectTrigger>
@@ -267,13 +292,26 @@ function AdminUserDetailPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <a
-                          href={`/admin/review/${bill.id}`}
+                        <Link
+                          to="/admin/review/$batchId"
+                          params={{ batchId: String(bill.id) }}
+                          search={{
+                            userId: userId,
+                            name: search.name,
+                            category: bill.category ?? '',
+                            date: bill.created_date,
+                            totalSubmitted: bill.amount,
+                            totalApproved: bill.approved_amount,
+                            empName: search.name,
+                            empEmail: search.email,
+                            empTotalSubmitted: search.totalSubmitted,
+                            empTotalApproved: search.totalApproved,
+                          }}
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"
                         >
                           <Eye className="size-3.5" />
                           {t.adminUserDetail.review}
-                        </a>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   )
@@ -281,6 +319,36 @@ function AdminUserDetailPage() {
               )}
             </TableBody>
           </Table>
+
+          {meta && (
+            <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">
+              <p className="text-sm text-gray-500">
+                {t.adminUserDetail.pageInfo
+                  .replace('{current}', String(meta.current_page))
+                  .replace('{total}', String(meta.last_page))}
+              </p>
+              <Pagination className="w-auto">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage((p) => p - 1)}
+                      disabled={meta.current_page <= 1}
+                    >
+                      {t.adminUserDetail.prevPage}
+                    </PaginationPrevious>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => p + 1)}
+                      disabled={meta.current_page >= meta.last_page}
+                    >
+                      {t.adminUserDetail.nextPage}
+                    </PaginationNext>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </Card>
       </div>
     </div>

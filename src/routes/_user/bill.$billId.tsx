@@ -2,13 +2,22 @@ import { Badge } from '#/components/ui/badge'
 import { useUserBillDetails } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, CheckCircle2, Circle, DollarSign, Receipt } from 'lucide-react'
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Circle,
+  DollarSign,
+  Receipt,
+} from 'lucide-react'
 
 export const Route = createFileRoute('/_user/bill/$billId')({
   component: BillDetailPage,
 })
 
-function getStepDone(status: string, step: 'submitted' | 'underReview' | 'reviewed' | 'reimbursed'): boolean {
+function getStepDone(
+  status: string,
+  step: 'submitted' | 'underReview' | 'reviewed' | 'reimbursed',
+): boolean {
   const s = status.toLowerCase()
   switch (step) {
     case 'submitted':
@@ -22,9 +31,17 @@ function getStepDone(status: string, step: 'submitted' | 'underReview' | 'review
   }
 }
 
-function StatusTimeline({ status, labels }: {
+function StatusTimeline({
+  status,
+  labels,
+}: {
   status: string
-  labels: { submitted: string; underReview: string; reviewed: string; reimbursed: string }
+  labels: {
+    submitted: string
+    underReview: string
+    reviewed: string
+    reimbursed: string
+  }
 }) {
   const isRejected = status.toLowerCase() === 'rejected'
 
@@ -43,11 +60,21 @@ function StatusTimeline({ status, labels }: {
         return (
           <li key={step.key} className="flex items-center gap-2 text-sm">
             {done ? (
-              <CheckCircle2 className={`size-4 shrink-0 ${isLastRelevant ? 'text-red-500' : 'text-emerald-500'}`} />
+              <CheckCircle2
+                className={`size-4 shrink-0 ${isLastRelevant ? 'text-red-500' : 'text-emerald-500'}`}
+              />
             ) : (
               <Circle className="size-4 shrink-0 text-gray-300" />
             )}
-            <span className={done ? (isLastRelevant ? 'text-red-600 font-medium' : 'text-gray-900 font-medium') : 'text-gray-400'}>
+            <span
+              className={
+                done
+                  ? isLastRelevant
+                    ? 'text-red-600 font-medium'
+                    : 'text-gray-900 font-medium'
+                  : 'text-gray-400'
+              }
+            >
               {step.label}
             </span>
           </li>
@@ -75,11 +102,32 @@ function BillDetailPage() {
 
   const getBatchStatusConfig = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'verified': return { label: t.common.statusLabels.verified, variant: 'info' as const }
-      case 'rejected': return { label: t.common.statusLabels.rejected, variant: 'destructive' as const }
-      case 'reimbursed': case 'paid': return { label: t.common.statusLabels.paid, variant: 'success' as const }
-      case 'under review': return { label: t.common.statusLabels.pending, variant: 'warning' as const }
-      default: return { label: t.common.statusLabels.submitted, variant: 'muted' as const }
+      case 'verified':
+        return {
+          label: t.common.statusLabels.verified,
+          variant: 'info' as const,
+        }
+      case 'rejected':
+        return {
+          label: t.common.statusLabels.rejected,
+          variant: 'destructive' as const,
+        }
+      case 'reimbursed':
+      case 'paid':
+        return {
+          label: t.common.statusLabels.paid,
+          variant: 'success' as const,
+        }
+      case 'under review':
+        return {
+          label: t.common.statusLabels.pending,
+          variant: 'warning' as const,
+        }
+      default:
+        return {
+          label: t.common.statusLabels.submitted,
+          variant: 'muted' as const,
+        }
     }
   }
 
@@ -100,12 +148,18 @@ function BillDetailPage() {
           <div className="h-8 w-64 animate-pulse rounded bg-gray-100" />
           <div className="h-4 w-32 animate-pulse rounded bg-gray-100" />
           {[1, 2].map((i) => (
-            <div key={i} className="rounded-xl border border-gray-200 bg-white p-5">
+            <div
+              key={i}
+              className="rounded-xl border border-gray-200 bg-white p-5"
+            >
               <div className="flex gap-5">
                 <div className="h-48 w-52 animate-pulse rounded-lg bg-gray-100 shrink-0" />
                 <div className="flex-1 space-y-3">
                   {[1, 2, 3, 4].map((j) => (
-                    <div key={j} className="h-4 animate-pulse rounded bg-gray-100" />
+                    <div
+                      key={j}
+                      className="h-4 animate-pulse rounded bg-gray-100"
+                    />
                   ))}
                 </div>
               </div>
@@ -124,7 +178,9 @@ function BillDetailPage() {
         <>
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{batch.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {batch.title}
+              </h1>
               {batch.category && (
                 <p className="mt-1 text-sm text-gray-500">{batch.category}</p>
               )}
@@ -164,8 +220,10 @@ function BillDetailPage() {
                                   target.style.display = 'none'
                                   const parent = target.parentElement
                                   if (parent) {
-                                    const fallback = parent.querySelector('.receipt-fallback') as HTMLElement | null
-                                    if (fallback) fallback.style.display = 'flex'
+                                    const fallback = parent.querySelector(
+                                      '.receipt-fallback',
+                                    ) as HTMLElement
+                                    fallback.style.display = 'flex'
                                   }
                                 }}
                               />
@@ -181,7 +239,9 @@ function BillDetailPage() {
                           <div className="flex h-44 w-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-white text-gray-300">
                             <div className="text-center">
                               <DollarSign className="mx-auto size-10" />
-                              <p className="mt-1 text-xs text-gray-400">{t.billDetail.noReceipt}</p>
+                              <p className="mt-1 text-xs text-gray-400">
+                                {t.billDetail.noReceipt}
+                              </p>
                             </div>
                           </div>
                         )}
@@ -196,61 +256,98 @@ function BillDetailPage() {
 
                       <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-5">
                         <div>
-                          <p className="text-xs text-gray-500">{t.billDetail.amount}</p>
-                          <p className="text-xl font-bold text-gray-900">{bill.amount}</p>
+                          <p className="text-xs text-gray-500">
+                            {t.billDetail.amount}
+                          </p>
+                          <p className="text-xl font-bold text-gray-900">
+                            {bill.amount}
+                          </p>
                         </div>
 
-                        {bill.approved_amount && bill.approved_amount !== bill.amount && (
-                          <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.approvedAmount}</p>
-                            <p className="text-base font-semibold text-emerald-700">{bill.approved_amount}</p>
-                          </div>
-                        )}
+                        {bill.approved_amount &&
+                          bill.approved_amount !== bill.amount && (
+                            <div>
+                              <p className="text-xs text-gray-500">
+                                {t.billDetail.approvedAmount}
+                              </p>
+                              <p className="text-base font-semibold text-emerald-700">
+                                {bill.approved_amount}
+                              </p>
+                            </div>
+                          )}
 
                         <div>
-                          <p className="text-xs text-gray-500">{t.billDetail.date}</p>
-                          <p className="text-sm font-medium text-gray-900">{bill.created_at}</p>
+                          <p className="text-xs text-gray-500">
+                            {t.billDetail.date}
+                          </p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {bill.created_at}
+                          </p>
                         </div>
 
                         {bill.billUploadBatch?.title && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.title}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.billUploadBatch.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.title}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.billUploadBatch.title}
+                            </p>
                           </div>
                         )}
 
                         {bill.category?.name && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.category}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.category.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.category}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.category.name}
+                            </p>
                           </div>
                         )}
 
                         {bill.bill_no && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.billNumber}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.bill_no}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.billNumber}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.bill_no}
+                            </p>
                           </div>
                         )}
 
                         {bill.vat_no && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.vatNumber}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.vat_no}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.vatNumber}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.vat_no}
+                            </p>
                           </div>
                         )}
 
                         {bill.vendorContact?.company_name && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.vendor}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.vendorContact.company_name}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.vendor}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.vendorContact.company_name}
+                            </p>
                           </div>
                         )}
 
                         {bill.vendorContact?.phone && (
                           <div>
-                            <p className="text-xs text-gray-500">{t.billDetail.phone}</p>
-                            <p className="text-sm font-medium text-gray-900">{bill.vendorContact.phone}</p>
+                            <p className="text-xs text-gray-500">
+                              {t.billDetail.phone}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {bill.vendorContact.phone}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -260,8 +357,14 @@ function BillDetailPage() {
                           {t.billDetail.statusTimeline}
                         </p>
                         <div className="flex items-start gap-6">
-                          <StatusTimeline status={bill.status} labels={timelineLabels} />
-                          <Badge variant={statusConfig.variant} className="ml-auto shrink-0">
+                          <StatusTimeline
+                            status={bill.status}
+                            labels={timelineLabels}
+                          />
+                          <Badge
+                            variant={statusConfig.variant}
+                            className="ml-auto shrink-0"
+                          >
                             {statusConfig.label}
                           </Badge>
                         </div>

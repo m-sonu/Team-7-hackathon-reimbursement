@@ -64,6 +64,29 @@ export type Translations = {
     colTotalReimbursed: string
     colActionStatus: string
     noSubmissions: string
+    dateFrom: string
+    dateTo: string
+    prevPage: string
+    nextPage: string
+    pageInfo: string
+  }
+  adminReview: {
+    backToEmployeeDetails: string
+    title: string
+    submittedBy: string
+    totalSubmitted: string
+    totalApproved: string
+    receiptPreview: string
+    amount: string
+    titleOfReceipt: string
+    updateStatus: string
+    markAsReviewed: string
+    reviewed: string
+    markAsReimbursed: string
+    noReceipt: string
+    reviewedSuccess: string
+    reimbursedSuccess: string
+    noExpenses: string
   }
   adminUserDetail: {
     totalSubmitted: string
@@ -76,6 +99,9 @@ export type Translations = {
     colApprovedAmount: string
     review: string
     reimbursedSuccess: string
+    prevPage: string
+    nextPage: string
+    pageInfo: string
   }
   uploadExpense: {
     subtitle: string

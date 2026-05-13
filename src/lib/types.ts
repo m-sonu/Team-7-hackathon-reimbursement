@@ -176,3 +176,18 @@ export type AdminEmployeeBillsResponse = {
     meta: PaginationMeta
   }
 }
+
+export type AdminBillItem = {
+  id: number
+  amount: string
+  title: string
+  status: string
+  is_valid: boolean
+  validation_error: string | null
+  file_preview_url: string | null
+}
+
+export type AdminCategoryBillsResponse = {
+  success: boolean
+  data: AdminBillItem[]
+}

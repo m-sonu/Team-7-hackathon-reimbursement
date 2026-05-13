@@ -2,6 +2,13 @@ import { AdminHeader } from '#/components/admin/AdminHeader'
 import { Badge } from '#/components/ui/badge'
 import { Card } from '#/components/ui/card'
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '#/components/ui/pagination'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,6 +32,10 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
 
+function toDateString(d: Date) {
+  return d.toISOString().split('T')[0]
+}
+
 export const Route = createFileRoute('/admin/dashboard')({
   beforeLoad: async ({ context }) => {
     if (!context.token) {
@@ -44,14 +55,19 @@ function AdminDashboardPage() {
   const { t } = useI18n()
 
   const token = context.token ?? ''
-  const currentMonth = new Date().getMonth() + 1
-  const [month, setMonth] = React.useState(String(currentMonth))
-  const [status, setStatus] = React.useState('all')
 
-  const MONTHS = React.useMemo(
-    () => t.common.months.map((label, i) => ({ value: String(i + 1), label })),
-    [t],
+  const today = new Date()
+  const defaultStart = toDateString(
+    new Date(today.getFullYear(), today.getMonth(), 1),
   )
+  const defaultEnd = toDateString(today)
+
+  const [startDate, setStartDate] = React.useState(defaultStart)
+  const [endDate, setEndDate] = React.useState(defaultEnd)
+  const [status, setStatus] = React.useState('all')
+  const [page, setPage] = React.useState(1)
+
+  const resetPage = () => setPage(1)
 
   const STATUS_OPTIONS = React.useMemo(
     () => [
@@ -66,14 +82,18 @@ function AdminDashboardPage() {
 
   const filters = React.useMemo(
     () => ({
-      month: Number(month),
+      start_date: startDate,
+      end_date: endDate,
       ...(status !== 'all' && { status }),
+      page,
+      per_page: 15,
     }),
-    [month, status],
+    [startDate, endDate, status, page],
   )
 
   const { data: res, isLoading } = useEmployeeBills(token, filters)
   const employees = res?.data.data ?? []
+  const meta = res?.data.meta
 
   function actionStatusBadge(empStatus: BillStatus) {
     if (empStatus === 'reimbursed') {
@@ -110,23 +130,44 @@ function AdminDashboardPage() {
               <Users className="size-4 text-gray-400" />
               {t.adminDashboard.employeeOverview}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Filter className="size-4 text-gray-400 shrink-0" />
 
-              <Select value={month} onValueChange={setMonth}>
-                <SelectTrigger className="w-32" size="sm">
-                  <SelectValue placeholder={t.common.month} />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label className="flex items-center gap-2 text-sm text-gray-600">
+                {t.adminDashboard.dateFrom}
+                <input
+                  type="date"
+                  value={startDate}
+                  max={endDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value)
+                    resetPage()
+                  }}
+                  className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                />
+              </label>
 
-              <Select value={status} onValueChange={setStatus}>
+              <label className="flex items-center gap-2 text-sm text-gray-600">
+                {t.adminDashboard.dateTo}
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value)
+                    resetPage()
+                  }}
+                  className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                />
+              </label>
+
+              <Select
+                value={status}
+                onValueChange={(v) => {
+                  setStatus(v)
+                  resetPage()
+                }}
+              >
                 <SelectTrigger className="w-32" size="sm">
                   <SelectValue placeholder={t.common.status} />
                 </SelectTrigger>
@@ -210,6 +251,36 @@ function AdminDashboardPage() {
               )}
             </TableBody>
           </Table>
+
+          {meta && (
+            <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">
+              <p className="text-sm text-gray-500">
+                {t.adminDashboard.pageInfo
+                  .replace('{current}', String(meta.current_page))
+                  .replace('{total}', String(meta.last_page))}
+              </p>
+              <Pagination className="w-auto">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage((p) => p - 1)}
+                      disabled={meta.current_page <= 1}
+                    >
+                      {t.adminDashboard.prevPage}
+                    </PaginationPrevious>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => p + 1)}
+                      disabled={meta.current_page >= meta.last_page}
+                    >
+                      {t.adminDashboard.nextPage}
+                    </PaginationNext>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </Card>
       </div>
     </div>

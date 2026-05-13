@@ -1,10 +1,12 @@
-import type { AdminEmployeeBillsResponse } from '../types'
+import type { AdminBillItem, AdminCategoryBillsResponse, AdminEmployeeBillsResponse, PaginatedResponse, UserBill } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
 export type EmployeeBillsFilters = {
-  month?: number
+  start_date?: string
+  end_date?: string
   status?: string
+  page?: number
   per_page?: number
 }
 
@@ -15,6 +17,52 @@ export function fetchEmployeeBills(
   return axios.get<AdminEmployeeBillsResponse>({
     url: urls.employeeBills,
     params: filters,
+    token,
+  })
+}
+
+export type AdminCategoryWiseBillsFilters = {
+  month?: number
+  status?: string
+  page?: number
+  per_page?: number
+}
+
+export function fetchAdminCategoryWiseBills(
+  userId: number,
+  token: string,
+  filters?: AdminCategoryWiseBillsFilters,
+) {
+  return axios.get<PaginatedResponse<UserBill>>({
+    url: urls.adminCategoryWiseBills(userId),
+    params: filters,
+    token,
+  })
+}
+
+export function fetchAdminCategoryBills(
+  userId: number,
+  categoryId: number,
+  token: string,
+) {
+  return axios.get<AdminCategoryBillsResponse>({
+    url: urls.adminCategoryBills(userId, categoryId),
+    token,
+  })
+}
+
+export function verifyBill(billId: number, token: string) {
+  return axios.post<{ success: boolean; message: string }>({
+    url: urls.adminVerifyBill(billId),
+    data: {},
+    token,
+  })
+}
+
+export function bulkReimburse(batchId: number, token: string) {
+  return axios.post<{ success: boolean; message: string }>({
+    url: urls.adminBulkReimburse(batchId),
+    data: {},
     token,
   })
 }
