@@ -29,7 +29,12 @@ import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
-import { createFileRoute, redirect, useNavigate, Link } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  redirect,
+  useNavigate,
+  Link,
+} from '@tanstack/react-router'
 import { ArrowLeft, Eye } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -97,9 +102,15 @@ function AdminUserDetailPage() {
   > = React.useMemo(
     () => ({
       pending: { label: t.common.statusLabels.pending, variant: 'muted' },
-      'under review': { label: t.common.statusLabels.submitted, variant: 'warning' },
+      'under review': {
+        label: t.common.statusLabels.submitted,
+        variant: 'warning',
+      },
       verified: { label: t.common.statusLabels.verified, variant: 'info' },
-      rejected: { label: t.common.statusLabels.rejected, variant: 'destructive' },
+      rejected: {
+        label: t.common.statusLabels.rejected,
+        variant: 'destructive',
+      },
       reimbursed: { label: t.common.statusLabels.paid, variant: 'success' },
     }),
     [t],
@@ -127,6 +138,8 @@ function AdminUserDetailPage() {
   const handleMarkReimbursed = () => {
     toast.success(t.adminUserDetail.reimbursedSuccess)
   }
+
+  console.log(bills)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -272,13 +285,13 @@ function AdminUserDetailPage() {
                         {bill.created_date}
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {bill.category ?? '—'}
+                        {bill.category_name ?? '—'}
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {bill.bills_count}
+                        {bill.bill_count}
                       </TableCell>
                       <TableCell className="font-medium text-gray-900">
-                        {bill.amount}
+                        {bill.total_amount}
                       </TableCell>
                       <TableCell className="font-medium text-gray-900">
                         {bill.approved_amount !== '¥0' &&
@@ -298,9 +311,9 @@ function AdminUserDetailPage() {
                           search={{
                             userId: userId,
                             name: search.name,
-                            category: bill.category ?? '',
+                            category: bill.category_id.toString(),
                             date: bill.created_date,
-                            totalSubmitted: bill.amount,
+                            totalSubmitted: bill.total_amount,
                             totalApproved: bill.approved_amount,
                             empName: search.name,
                             empEmail: search.email,

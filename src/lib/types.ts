@@ -48,17 +48,22 @@ export type DashboardData = {
   category_wise_amounts: CategoryAmount[]
 }
 
-export type BillStatus = 'pending' | 'under review' | 'verified' | 'rejected' | 'reimbursed'
+export type BillStatus =
+  | 'pending'
+  | 'under review'
+  | 'verified'
+  | 'rejected'
+  | 'reimbursed'
 
 export type UserBill = {
-  id: number
-  title: string
-  category: string | null
-  created_date: string
   approved_amount: string
-  amount: string
+  id: number
+  bill_count: number
+  category_id: number
+  category_name: string | null
   status: BillStatus
-  bills_count: number
+  total_amount: string
+  created_date: string
   reject_reason?: string | null
 }
 
