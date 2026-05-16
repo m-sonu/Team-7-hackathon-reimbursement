@@ -278,7 +278,10 @@ function AdminUserDetailPage() {
                 </TableRow>
               ) : (
                 bills.map((bill) => {
-                  const statusCfg = STATUS_CONFIG[bill.status]
+                  const statusCfg = STATUS_CONFIG[bill.status] ?? {
+                    label: bill.status || t.common.statusLabels.pending,
+                    variant: 'warning',
+                  }
                   return (
                     <TableRow key={bill.id}>
                       <TableCell className="text-gray-600">

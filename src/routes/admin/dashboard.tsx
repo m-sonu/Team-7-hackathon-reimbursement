@@ -72,10 +72,10 @@ function AdminDashboardPage() {
   const STATUS_OPTIONS = React.useMemo(
     () => [
       { value: 'all', label: t.common.allStatuses },
-      { value: 'pending', label: t.common.statusLabels.pending },
+      { value: 'under review', label: t.common.statusLabels.pending },
       { value: 'verified', label: t.common.statusLabels.verified },
       { value: 'rejected', label: t.common.statusLabels.rejected },
-      { value: 'paid', label: t.common.statusLabels.paid },
+      { value: 'reimbursed', label: t.common.statusLabels.paid },
     ],
     [t],
   )
@@ -92,10 +92,10 @@ function AdminDashboardPage() {
   )
 
   const { data: res, isLoading } = useEmployeeBills(token, filters)
-  const employees = res?.data.data ?? []
-  const meta = res?.data.meta
+  const employees = res?.data ?? []
+  const meta = res?.meta
 
-  function actionStatusBadge(empStatus: BillStatus) {
+  function actionStatusBadge(empStatus?: BillStatus) {
     if (empStatus === 'reimbursed') {
       return <Badge variant="success">{t.common.statusLabels.done}</Badge>
     }
