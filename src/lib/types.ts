@@ -159,7 +159,7 @@ export type BatchPreview = {
   currency: string
   category: string | null
   submitted_at: string
-  ai_processing: boolean
+  ai_processing: 'processing' | 'success' | 'failed'
   totals: {
     valid: number
     invalid: number

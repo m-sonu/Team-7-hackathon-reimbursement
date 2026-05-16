@@ -158,7 +158,7 @@ function DashboardPage() {
 
   const { data: categoriesRes } = useCategories(token)
 
-  const dashboard = dashboardRes?.data
+  const dashboard = dashboardRes
   const bills = billsRes?.data ?? []
   const meta = billsRes?.meta
   const categories = categoriesRes?.data ?? []

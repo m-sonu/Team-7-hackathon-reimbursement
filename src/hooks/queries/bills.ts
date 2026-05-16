@@ -39,7 +39,7 @@ export function useBatchPreview(batchId: number, token: string) {
     queryFn: () => fetchBatchPreview(batchId, token),
     enabled: !!batchId && !!token,
     refetchInterval: (query) =>
-      query.state.data?.data?.ai_processing ? 3000 : false,
+      query.state.data?.data?.ai_processing === 'processing' ? 3000 : false,
   })
 }
 

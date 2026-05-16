@@ -118,7 +118,7 @@ function BillDetailPage() {
           label: t.common.statusLabels.paid,
           variant: 'success' as const,
         }
-      case 'under review':
+      case 'pending':
         return {
           label: t.common.statusLabels.pending,
           variant: 'warning' as const,

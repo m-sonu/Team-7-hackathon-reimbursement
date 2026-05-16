@@ -147,7 +147,9 @@ function ReviewBatchPage() {
   const { mutate: submit, isPending: isSubmitting } = useSubmitBatch()
 
   const preview = data?.data
-  const isProcessing = preview?.ai_processing ?? true
+  const aiStatus = preview?.ai_processing ?? 'processing'
+  const isProcessing = aiStatus === 'processing'
+  const isFailed = aiStatus === 'failed'
 
   const cardLabels = React.useMemo(
     () => ({
@@ -254,8 +256,21 @@ function ReviewBatchPage() {
           </div>
         )}
 
+        {/* AI processing failed banner */}
+        {!isLoading && isFailed && (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 py-14 text-center">
+            <AlertTriangle className="mb-4 size-10 text-red-500" />
+            <p className="text-base font-semibold text-gray-900">
+              Processing Failed
+            </p>
+            <p className="mt-1 text-sm text-gray-500 max-w-xs">
+              There was an error processing the bills in this batch. Please try uploading again.
+            </p>
+          </div>
+        )}
+
         {/* Bills list */}
-        {!isLoading && !isProcessing && preview && (
+        {!isLoading && aiStatus === 'success' && preview && (
           <div className="space-y-6">
             {/* Valid bills */}
             {validBills.length > 0 && (
@@ -301,7 +316,7 @@ function ReviewBatchPage() {
       </div>
 
       {/* Fixed footer */}
-      {!isLoading && !isProcessing && preview && (
+      {!isLoading && aiStatus === 'success' && preview && (
         <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>
