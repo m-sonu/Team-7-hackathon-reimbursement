@@ -1,9 +1,9 @@
-import type { DashboardData, ResponseWrapper } from '../types'
+import type { EmployeeDashboardResponse } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
 export function fetchEmployeeDashboard(userId: number, token: string) {
-  return axios.get<ResponseWrapper<DashboardData>>({
+  return axios.get<EmployeeDashboardResponse>({
     url: urls.userDashboard(userId),
     token,
   })

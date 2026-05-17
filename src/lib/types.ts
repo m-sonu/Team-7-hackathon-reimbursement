@@ -39,13 +39,16 @@ export type CategoryAmount = {
   bill_count: number
 }
 
-export type DashboardData = {
+export type EmployeeDashboardResponse = {
+  success: boolean
+  message: string
   total_bills: number
   total_approved_amount: string
   amount: string
   approved_amount: string
   current_month_verified_bills: number
   category_wise_amounts: CategoryAmount[]
+  meta: PaginationMeta
 }
 
 export type BillStatus =
@@ -56,29 +59,21 @@ export type BillStatus =
   | 'reimbursed'
 
 export type UserBill = {
-  approved_amount: string
   id: number
-  bill_count: number
-  category_id: number
-  category_name: string | null
-  status: BillStatus
-  total_amount: string
+  title: string
+  category: string | null
   created_date: string
-  reject_reason?: string | null
+  approved_amount: string
+  amount: string
+  ai_processing: 'processing' | 'success' | 'failed'
+  status: BillStatus
+  bills_count: number
 }
 
 export type PaginationMeta = {
   current_page: number
-  from: number | null
   last_page: number
-  per_page: number
-  to: number | null
   total: number
-}
-
-export type PaginationLinks = {
-  first: string
-  last: string
   next: string | null
   prev: string | null
 }
@@ -86,22 +81,22 @@ export type PaginationLinks = {
 export type PaginatedResponse<T> = {
   data: T[]
   meta: PaginationMeta
-  links: PaginationLinks
 }
 
 export type EmployeeBill = {
   id: number
   name: string
   email: string
-  amount: string
-  approved_amount: string
-  status: BillStatus
-  currency?: string
+  bills_count: number
+  total_amount: number
+  approved_amount: number
 }
 
 export type Category = {
   id: number
   name: string
+  monthly_limit?: number | null
+  is_active?: boolean
 }
 
 export type BillDetailItem = {
@@ -130,13 +125,16 @@ export type BillDetailItem = {
   updated_at: string
 }
 
-export type BatchDetail = {
+export type BatchDetailResponse = {
+  success: boolean
+  message: string
   id: number
   title: string
   category: string | null
   created_date: string
   approved_amount: string
-  bills: BillDetailItem[]
+  data: BillDetailItem[]
+  meta: PaginationMeta
 }
 
 export type BatchPreviewBill = {
@@ -171,28 +169,39 @@ export type BatchPreview = {
 
 export type AdminEmployeeBillsResponse = {
   success: boolean
+  message: string
   month: number
   year: number
   start_date: string
   end_date: string
-  data: {
-    data: EmployeeBill[]
-    links: PaginationLinks
-    meta: PaginationMeta
-  }
+  data: EmployeeBill[]
+  meta: PaginationMeta
 }
 
-export type AdminBillItem = {
-  id: number
-  amount: string
-  title: string
-  status: string
-  is_valid: boolean
-  validation_error: string | null
-  file_preview_url: string | null
+export type CategoryBill = {
+  category_id: number
+  category_name: string
+  total_amount: string
+  approved_amount: string
+  bill_count: number
+  status: BillStatus
 }
+
+export type AdminCategoryWiseBillsResponse = {
+  success: boolean
+  message: string
+  user_id: number
+  data: CategoryBill[]
+}
+
+export type AdminBillItem = BillDetailItem
 
 export type AdminCategoryBillsResponse = {
   success: boolean
+  message: string
+  total_amount: string
+  approve_amount: string
+  bill_count: number
   data: AdminBillItem[]
+  meta: PaginationMeta
 }

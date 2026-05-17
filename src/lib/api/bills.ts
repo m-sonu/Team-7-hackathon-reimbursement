@@ -1,4 +1,4 @@
-import type { BatchDetail, BatchPreview, PaginatedResponse, ResponseWrapper, UserBill } from '../types'
+import type { BatchDetailResponse, BatchPreview, PaginatedResponse, UserBill } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
@@ -26,7 +26,7 @@ export function fetchUserBills(
 }
 
 export function fetchUserBillDetails(billId: number, token: string) {
-  return axios.get<ResponseWrapper<BatchDetail>>({
+  return axios.get<BatchDetailResponse>({
     url: urls.userBillDetails(billId),
     token,
   })

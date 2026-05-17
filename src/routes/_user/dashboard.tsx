@@ -158,7 +158,7 @@ function DashboardPage() {
 
   const { data: categoriesRes } = useCategories(token)
 
-  const dashboard = dashboardRes
+
   const bills = billsRes?.data ?? []
   const meta = billsRes?.meta
   const categories = categoriesRes?.data ?? []
@@ -193,9 +193,9 @@ function DashboardPage() {
               <div className="h-8 w-40 animate-pulse rounded bg-gray-100" />
             ) : (
               <p className="text-2xl font-bold text-gray-900">
-                {dashboard?.approved_amount ?? '—'}
+                {dashboardRes?.approved_amount ?? '—'}
                 <span className="text-lg font-medium text-gray-400">
-                  /{dashboard?.amount ?? '—'}
+                  /{dashboardRes?.amount ?? '—'}
                 </span>
               </p>
             )}
@@ -211,7 +211,7 @@ function DashboardPage() {
               <div className="h-8 w-12 animate-pulse rounded bg-gray-100" />
             ) : (
               <p className="text-2xl font-bold text-gray-900">
-                {dashboard?.total_bills ?? 0}
+                {dashboardRes?.total_bills ?? 0}
               </p>
             )}
           </CardContent>
@@ -231,9 +231,9 @@ function DashboardPage() {
                   />
                 ))}
               </div>
-            ) : dashboard?.category_wise_amounts.length ? (
+            ) : dashboardRes?.category_wise_amounts.length ? (
               <ul className="space-y-1.5">
-                {dashboard.category_wise_amounts.map((cat) => (
+                {dashboardRes.category_wise_amounts.map((cat) => (
                   <li
                     key={cat.category_id}
                     className="flex items-center justify-between text-sm"
@@ -379,7 +379,6 @@ function DashboardPage() {
                   <TableCell>
                     <StatusBadge
                       status={bill.status}
-                      rejectReason={bill.reject_reason}
                       labels={STATUS_LABELS}
                       rejectReasonLabel={t.userDashboard.rejectReason}
                     />

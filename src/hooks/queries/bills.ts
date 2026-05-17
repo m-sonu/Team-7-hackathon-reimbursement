@@ -1,5 +1,5 @@
 import { createBill, fetchBatchPreview, fetchUserBillDetails, fetchUserBills, submitBatch, type UserBillsFilters } from '#/lib/api/bills'
-import type { ApiError, BatchDetail, BatchPreview, PaginatedResponse, ResponseWrapper, UserBill } from '#/lib/types'
+import type { ApiError, BatchDetailResponse, BatchPreview, PaginatedResponse, UserBill } from '#/lib/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
@@ -16,7 +16,7 @@ export function useUserBills(
 }
 
 export function useUserBillDetails(billId: number, token: string) {
-  return useQuery<ResponseWrapper<BatchDetail>, AxiosError<ApiError>>({
+  return useQuery<BatchDetailResponse, AxiosError<ApiError>>({
     queryKey: ['userBillDetails', billId],
     queryFn: () => fetchUserBillDetails(billId, token),
     enabled: !!billId && !!token,

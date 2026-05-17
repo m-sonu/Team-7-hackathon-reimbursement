@@ -1,4 +1,4 @@
-import type { AdminBillItem, AdminCategoryBillsResponse, AdminEmployeeBillsResponse, PaginatedResponse, UserBill } from '../types'
+import type { AdminCategoryBillsResponse, AdminCategoryWiseBillsResponse, AdminEmployeeBillsResponse } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
@@ -33,7 +33,7 @@ export function fetchAdminCategoryWiseBills(
   token: string,
   filters?: AdminCategoryWiseBillsFilters,
 ) {
-  return axios.get<PaginatedResponse<UserBill>>({
+  return axios.get<AdminCategoryWiseBillsResponse>({
     url: urls.adminCategoryWiseBills(userId),
     params: filters,
     token,

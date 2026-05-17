@@ -3,13 +3,6 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent } from '#/components/ui/card'
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '#/components/ui/pagination'
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -72,9 +65,6 @@ function AdminUserDetailPage() {
   const currentMonth = new Date().getMonth() + 1
   const [month, setMonth] = React.useState(String(currentMonth))
   const [status, setStatus] = React.useState('all')
-  const [page, setPage] = React.useState(1)
-
-  const resetPage = () => setPage(1)
 
   const MONTHS = React.useMemo(
     () => t.common.months.map((label, i) => ({ value: String(i + 1), label })),
@@ -120,10 +110,8 @@ function AdminUserDetailPage() {
     () => ({
       month: Number(month),
       ...(status !== 'all' && { status }),
-      page,
-      per_page: 15,
     }),
-    [month, status, page],
+    [month, status],
   )
 
   const { data: billsRes, isLoading } = useAdminCategoryWiseBills(
@@ -133,13 +121,10 @@ function AdminUserDetailPage() {
   )
 
   const bills = billsRes?.data ?? []
-  const meta = billsRes?.meta
 
   const handleMarkReimbursed = () => {
     toast.success(t.adminUserDetail.reimbursedSuccess)
   }
-
-  console.log(bills)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -157,13 +142,7 @@ function AdminUserDetailPage() {
           </button>
 
           <div className="flex items-center gap-3">
-            <Select
-              value={month}
-              onValueChange={(v) => {
-                setMonth(v)
-                resetPage()
-              }}
-            >
+            <Select value={month} onValueChange={setMonth}>
               <SelectTrigger className="w-32" size="sm">
                 <SelectValue placeholder={t.common.month} />
               </SelectTrigger>
@@ -176,13 +155,7 @@ function AdminUserDetailPage() {
               </SelectContent>
             </Select>
 
-            <Select
-              value={status}
-              onValueChange={(v) => {
-                setStatus(v)
-                resetPage()
-              }}
-            >
+            <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-32" size="sm">
                 <SelectValue placeholder={t.common.status} />
               </SelectTrigger>
@@ -278,17 +251,12 @@ function AdminUserDetailPage() {
                 </TableRow>
               ) : (
                 bills.map((bill) => {
-                  const statusCfg = STATUS_CONFIG[bill.status] ?? {
-                    label: bill.status || t.common.statusLabels.pending,
-                    variant: 'warning',
-                  }
+                  const statusCfg = STATUS_CONFIG[bill.status]
                   return (
-                    <TableRow key={bill.id}>
+                    <TableRow key={bill.category_id}>
+                      <TableCell className="text-gray-600">—</TableCell>
                       <TableCell className="text-gray-600">
-                        {bill.created_date}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {bill.category_name ?? '—'}
+                        {bill.category_name}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {bill.bill_count}
@@ -310,12 +278,11 @@ function AdminUserDetailPage() {
                       <TableCell>
                         <Link
                           to="/admin/review/$batchId"
-                          params={{ batchId: String(bill.id) }}
+                          params={{ batchId: String(bill.category_id) }}
                           search={{
                             userId: userId,
                             name: search.name,
-                            category: bill.category_id.toString(),
-                            date: bill.created_date,
+                            category: bill.category_name,
                             totalSubmitted: bill.total_amount,
                             totalApproved: bill.approved_amount,
                             empName: search.name,
@@ -335,36 +302,6 @@ function AdminUserDetailPage() {
               )}
             </TableBody>
           </Table>
-
-          {meta && (
-            <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">
-              <p className="text-sm text-gray-500">
-                {t.adminUserDetail.pageInfo
-                  .replace('{current}', String(meta.current_page))
-                  .replace('{total}', String(meta.last_page))}
-              </p>
-              <Pagination className="w-auto">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setPage((p) => p - 1)}
-                      disabled={meta.current_page <= 1}
-                    >
-                      {t.adminUserDetail.prevPage}
-                    </PaginationPrevious>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setPage((p) => p + 1)}
-                      disabled={meta.current_page >= meta.last_page}
-                    >
-                      {t.adminUserDetail.nextPage}
-                    </PaginationNext>
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
         </Card>
       </div>
     </div>

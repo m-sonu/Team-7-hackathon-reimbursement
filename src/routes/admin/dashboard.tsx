@@ -27,7 +27,6 @@ import { useEmployeeBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
-import type { BillStatus } from '#/lib/types'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
@@ -95,19 +94,8 @@ function AdminDashboardPage() {
   const employees = res?.data ?? []
   const meta = res?.meta
 
-  function actionStatusBadge(empStatus?: BillStatus) {
-    if (empStatus === 'reimbursed') {
-      return <Badge variant="success">{t.common.statusLabels.done}</Badge>
-    }
-    if (empStatus === 'verified') {
-      return <Badge variant="info">{t.common.statusLabels.verified}</Badge>
-    }
-    if (empStatus === 'rejected') {
-      return (
-        <Badge variant="destructive">{t.common.statusLabels.rejected}</Badge>
-      )
-    }
-    return <Badge variant="warning">{t.common.statusLabels.pending}</Badge>
+  function billsCountBadge(count: number) {
+    return <Badge variant="muted">{count}</Badge>
   }
 
   return (
@@ -221,12 +209,12 @@ function AdminDashboardPage() {
                     </TableCell>
                     <TableCell className="text-gray-600">{emp.email}</TableCell>
                     <TableCell className="font-medium text-gray-900">
-                      {emp.amount}
+                      {emp.total_amount}
                     </TableCell>
                     <TableCell className="font-medium text-gray-900">
                       {emp.approved_amount}
                     </TableCell>
-                    <TableCell>{actionStatusBadge(emp.status)}</TableCell>
+                    <TableCell>{billsCountBadge(emp.bills_count)}</TableCell>
                     <TableCell>
                       <button
                         onClick={() =>
@@ -236,8 +224,8 @@ function AdminDashboardPage() {
                             search: {
                               name: emp.name,
                               email: emp.email,
-                              totalSubmitted: emp.amount,
-                              totalApproved: emp.approved_amount,
+                              totalSubmitted: String(emp.total_amount),
+                              totalApproved: String(emp.approved_amount),
                             },
                           })
                         }

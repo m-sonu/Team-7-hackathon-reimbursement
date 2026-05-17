@@ -1,6 +1,6 @@
 import { fetchEmployeeBills, fetchAdminCategoryWiseBills, fetchAdminCategoryBills, verifyBill, bulkReimburse } from '#/lib/api/admin'
 import type { EmployeeBillsFilters, AdminCategoryWiseBillsFilters } from '#/lib/api/admin'
-import type { AdminCategoryBillsResponse, AdminEmployeeBillsResponse, ApiError, PaginatedResponse, UserBill } from '#/lib/types'
+import type { AdminCategoryBillsResponse, AdminCategoryWiseBillsResponse, AdminEmployeeBillsResponse, ApiError } from '#/lib/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
@@ -20,7 +20,7 @@ export function useAdminCategoryWiseBills(
   token: string,
   filters?: AdminCategoryWiseBillsFilters,
 ) {
-  return useQuery<PaginatedResponse<UserBill>, AxiosError<ApiError>>({
+  return useQuery<AdminCategoryWiseBillsResponse, AxiosError<ApiError>>({
     queryKey: ['adminCategoryWiseBills', userId, filters],
     queryFn: () => fetchAdminCategoryWiseBills(userId, token, filters),
     enabled: !!userId && !!token,

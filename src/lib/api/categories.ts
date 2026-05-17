@@ -1,7 +1,10 @@
-import type { Category } from '../types'
+import type { Category, PaginationMeta } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
 export function fetchCategories(token: string) {
-  return axios.get<{ data: Category[] }>({ url: urls.categories, token })
+  return axios.get<{ success: boolean; data: Category[]; meta: PaginationMeta }>({
+    url: urls.categories,
+    token,
+  })
 }

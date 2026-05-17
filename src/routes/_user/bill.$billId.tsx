@@ -91,7 +91,7 @@ function BillDetailPage() {
   const token = context.token ?? ''
 
   const { data, isLoading, isError } = useUserBillDetails(Number(billId), token)
-  const batch = data?.data
+  const batch = data
 
   const timelineLabels = {
     submitted: t.billDetail.stepSubmitted,
@@ -188,7 +188,7 @@ function BillDetailPage() {
           </div>
 
           <div className="space-y-4">
-            {batch.bills.map((bill) => {
+            {(batch.data ?? []).map((bill) => {
               const statusConfig = getBatchStatusConfig(bill.status)
               return (
                 <div

@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_user/review-batch/$batchId')({
 
 function BillCard({
   bill,
-  currency,
+  currency: _currency,
   isValid,
   labels,
 }: {

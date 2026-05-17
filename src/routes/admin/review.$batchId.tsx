@@ -7,7 +7,6 @@ import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, FileImage } from 'lucide-react'
-import * as React from 'react'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
 
@@ -204,7 +203,7 @@ function AdminReviewPage() {
                         {t.adminReview.titleOfReceipt}
                       </p>
                       <p className="mt-0.5 font-semibold text-gray-900">
-                        {bill.title}
+                        {bill.billUploadBatch?.title ?? '—'}
                       </p>
                     </div>
 
