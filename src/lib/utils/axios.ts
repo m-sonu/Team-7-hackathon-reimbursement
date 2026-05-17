@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import { onLogout } from '#/server/cookies'
 import { getT } from '#/lib/i18n'
 import { cleanData } from '.'
+import { env } from './env'
 
 interface RequestParams {
   url: string
@@ -17,7 +18,7 @@ const authHeader = (token?: string) =>
   token ? { Authorization: `Bearer ${token}` } : {}
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:80/api',
+  baseURL: env.BACKEND_API,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

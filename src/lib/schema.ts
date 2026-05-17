@@ -14,3 +14,8 @@ export const loginCookieSchema = z.object({
     role: z.enum(['Admin', 'Employee']),
   }),
 })
+
+export const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production']).default('development'),
+  BACKEND_API: z.url(),
+})
