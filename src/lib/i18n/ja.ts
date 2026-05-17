@@ -96,6 +96,9 @@ const ja: Translations = {
     reviewedSuccess: '明細をレビュー済みに設定しました。',
     reimbursedSuccess: '精算処理が完了しました。',
     noExpenses: '明細が見つかりません。',
+    reject: '却下',
+    rejected: '却下済',
+    rejectSuccess: '明細を却下しました。',
   },
   adminUserDetail: {
     totalSubmitted: '申請合計',

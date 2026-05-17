@@ -9,6 +9,7 @@ export const urls = {
   adminCategoryBills: (userId: number, categoryId: number) =>
     `/admin/categoryWiseBills/${userId}/${categoryId}`,
   adminVerifyBill: (billId: number) => `/admin/bills/${billId}/verify`,
+  adminRejectBill: (billId: number) => `/admin/bills/${billId}/verify`,
   adminBulkReimburse: (batchId: number) => `/admin/bills/${batchId}/bulk-reimburse`,
   categories: '/categories',
   bills: '/bills',

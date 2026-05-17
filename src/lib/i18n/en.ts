@@ -96,6 +96,9 @@ const en: Translations = {
     reviewedSuccess: 'Bill marked as reviewed.',
     reimbursedSuccess: 'Bills reimbursed successfully.',
     noExpenses: 'No bills found.',
+    reject: 'Reject',
+    rejected: 'Rejected',
+    rejectSuccess: 'Bill rejected successfully.',
   },
   adminUserDetail: {
     totalSubmitted: 'Total Submitted',

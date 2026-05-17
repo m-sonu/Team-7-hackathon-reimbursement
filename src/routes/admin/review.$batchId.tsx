@@ -4,6 +4,7 @@ import { Button } from '#/components/ui/button'
 import {
   useAdminCategoryBills,
   useBulkReimburse,
+  useRejectBill,
   useVerifyBill,
 } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
@@ -54,6 +55,7 @@ function AdminReviewPage() {
 
   const { data, isLoading } = useAdminCategoryBills(userId, categoryId, token)
   const verifyMutation = useVerifyBill(userId, categoryId)
+  const rejectMutation = useRejectBill(userId, categoryId)
   const bulkMutation = useBulkReimburse()
 
   const bills = data?.data ?? []
@@ -64,6 +66,16 @@ function AdminReviewPage() {
       {
         onSuccess: () => toast.success(t.adminReview.reviewedSuccess),
         onError: () => toast.error('Failed to mark as reviewed.'),
+      },
+    )
+  }
+
+  const handleReject = (billId: number) => {
+    rejectMutation.mutate(
+      { billId, token },
+      {
+        onSuccess: () => toast.success(t.adminReview.rejectSuccess),
+        onError: () => toast.error('Failed to reject bill.'),
       },
     )
   }
@@ -159,9 +171,13 @@ function AdminReviewPage() {
           <div className="space-y-4">
             {bills.map((bill) => {
               const isVerified = bill.status === 'verified'
+              const isRejected = bill.status === 'rejected'
               const isPending =
                 verifyMutation.isPending &&
                 verifyMutation.variables.billId === bill.id
+              const isRejecting =
+                rejectMutation.isPending &&
+                rejectMutation.variables.billId === bill.id
 
               return (
                 <div
@@ -189,11 +205,18 @@ function AdminReviewPage() {
 
                   {/* Bill details */}
                   <div className="flex flex-col gap-4 p-5">
-                    {isVerified && (
+                    {(isVerified || isRejected) && (
                       <div className="self-end">
-                        <Badge variant="success">
-                          {t.adminReview.reviewed}
-                        </Badge>
+                        {isVerified && (
+                          <Badge variant="success">
+                            {t.adminReview.reviewed}
+                          </Badge>
+                        )}
+                        {isRejected && (
+                          <Badge variant="destructive">
+                            {t.adminReview.rejected}
+                          </Badge>
+                        )}
                       </div>
                     )}
 
@@ -221,18 +244,28 @@ function AdminReviewPage() {
                       </p>
                     )}
 
-                    {!isVerified && (
+                    {!isVerified && !isRejected && (
                       <div>
                         <p className="mb-2 text-xs font-medium text-gray-500">
                           {t.adminReview.updateStatus}
                         </p>
-                        <Button
-                          onClick={() => handleVerify(bill.id)}
-                          disabled={isPending}
-                          className="w-full bg-indigo-600 hover:bg-indigo-700"
-                        >
-                          {isPending ? '…' : t.adminReview.markAsReviewed}
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleVerify(bill.id)}
+                            disabled={isPending || isRejecting}
+                            className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            {isPending ? '…' : t.adminReview.markAsReviewed}
+                          </Button>
+                          <Button
+                            onClick={() => handleReject(bill.id)}
+                            disabled={isPending || isRejecting}
+                            variant="destructive"
+                            className="flex-1"
+                          >
+                            {isRejecting ? '…' : t.adminReview.reject}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

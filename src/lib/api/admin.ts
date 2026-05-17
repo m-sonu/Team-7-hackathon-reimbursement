@@ -55,14 +55,18 @@ export function fetchAdminCategoryBills(
   })
 }
 
-export function verifyBill(
-  billId: number,
-  token: string,
-  data: { status: 'verified' },
-) {
+export function verifyBill(billId: number, token: string) {
   return axios.post<{ success: boolean; message: string }>({
     url: urls.adminVerifyBill(billId),
-    data: {},
+    data: { status: 'verified' },
+    token,
+  })
+}
+
+export function rejectBill(billId: number, token: string) {
+  return axios.post<{ success: boolean; message: string }>({
+    url: urls.adminRejectBill(billId),
+    data: { status: 'rejected' },
     token,
   })
 }
