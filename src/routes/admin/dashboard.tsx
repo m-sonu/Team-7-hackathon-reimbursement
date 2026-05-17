@@ -274,56 +274,6 @@ function AdminDashboardPage() {
             </div>
           )}
         </Card>
-
-        <Card className="mt-6">
-          <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-3.5 text-sm font-semibold text-gray-700">
-            <LayoutGrid className="size-4 text-gray-400" />
-            {t.adminDashboard.categoryLimits}
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t.adminDashboard.colCategory}</TableHead>
-                <TableHead>{t.adminDashboard.colMonthlyLimit}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isCatLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 2 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : categories.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={2}
-                    className="py-10 text-center text-sm text-muted-foreground"
-                  >
-                    {t.common.noExpenses}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                categories.map((cat) => (
-                  <TableRow key={cat.id}>
-                    <TableCell className="font-medium text-gray-900">
-                      {cat.name}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {cat.monthly_limit != null
-                        ? cat.monthly_limit.toLocaleString()
-                        : <span className="text-gray-400 italic">{t.adminDashboard.noLimit}</span>}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </Card>
       </div>
     </div>
   )
