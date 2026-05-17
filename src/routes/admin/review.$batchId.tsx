@@ -56,9 +56,18 @@ function AdminReviewPage() {
   const { data, isLoading } = useAdminCategoryBills(userId, categoryId, token)
   const verifyMutation = useVerifyBill(userId, categoryId)
   const rejectMutation = useRejectBill(userId, categoryId)
-  const bulkMutation = useBulkReimburse()
+  const bulkMutation = useBulkReimburse(userId, categoryId)
 
   const bills = data?.data ?? []
+
+  const statusCounts = bills.reduce(
+    (acc, bill) => {
+      const s = bill.status
+      acc[s] = (acc[s] ?? 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   const handleVerify = (billId: number, approveAmount: number) => {
     verifyMutation.mutate(
@@ -125,7 +134,31 @@ function AdminReviewPage() {
             {t.adminReview.backToEmployeeDetails}
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            {bills.length > 0 && (
+              <div className="flex items-center gap-2">
+                {statusCounts['verified'] && (
+                  <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+                    {t.common.statusLabels.verified}: {statusCounts['verified']}
+                  </span>
+                )}
+                {statusCounts['rejected'] && (
+                  <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                    {t.common.statusLabels.rejected}: {statusCounts['rejected']}
+                  </span>
+                )}
+                {statusCounts['pending'] && (
+                  <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                    {t.common.statusLabels.pending}: {statusCounts['pending']}
+                  </span>
+                )}
+                {statusCounts['reimbursed'] && (
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                    {t.common.statusLabels.paid}: {statusCounts['reimbursed']}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="text-right">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 {t.adminReview.totalSubmitted}

@@ -51,6 +51,9 @@ export function useVerifyBill(userId: number, categoryId: number) {
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryBills', userId, categoryId],
       })
+      queryClient.invalidateQueries({
+        queryKey: ['adminCategoryWiseBills', userId],
+      })
     },
   })
 }
@@ -67,16 +70,30 @@ export function useRejectBill(userId: number, categoryId: number) {
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryBills', userId, categoryId],
       })
+      queryClient.invalidateQueries({
+        queryKey: ['adminCategoryWiseBills', userId],
+      })
     },
   })
 }
 
-export function useBulkReimburse() {
+export function useBulkReimburse(userId?: number, categoryId?: number) {
+  const queryClient = useQueryClient()
   return useMutation<
     { success: boolean; message: string },
     AxiosError<ApiError>,
     { batchId: number; token: string }
   >({
     mutationFn: ({ batchId, token }) => bulkReimburse(batchId, token),
+    onSuccess: () => {
+      if (userId && categoryId) {
+        queryClient.invalidateQueries({
+          queryKey: ['adminCategoryBills', userId, categoryId],
+        })
+        queryClient.invalidateQueries({
+          queryKey: ['adminCategoryWiseBills', userId],
+        })
+      }
+    },
   })
 }
