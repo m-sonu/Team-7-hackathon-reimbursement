@@ -21,7 +21,6 @@ import { useAdminCategoryWiseBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
-import type { BillStatus } from '#/lib/types'
 import {
   createFileRoute,
   redirect,
@@ -83,12 +82,11 @@ function AdminUserDetailPage() {
     [t],
   )
 
-  const STATUS_CONFIG: Record<
-    BillStatus,
-    {
-      label: string
-      variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning'
-    }
+  const STATUS_CONFIG: Partial<
+    Record<
+      string,
+      { label: string; variant: 'info' | 'muted' | 'destructive' | 'success' | 'warning' }
+    >
   > = React.useMemo(
     () => ({
       pending: { label: t.common.statusLabels.pending, variant: 'muted' },
@@ -251,10 +249,15 @@ function AdminUserDetailPage() {
                 </TableRow>
               ) : (
                 bills.map((bill) => {
-                  const statusCfg = STATUS_CONFIG[bill.status]
+                  const statusCfg = STATUS_CONFIG[bill.status] ?? {
+                    label: bill.status,
+                    variant: 'muted' as const,
+                  }
                   return (
                     <TableRow key={bill.category_id}>
-                      <TableCell className="text-gray-600">—</TableCell>
+                      <TableCell className="text-gray-600">
+                        {bill.updated_at}
+                      </TableCell>
                       <TableCell className="text-gray-600">
                         {bill.category_name}
                       </TableCell>

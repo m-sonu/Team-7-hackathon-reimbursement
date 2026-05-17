@@ -185,6 +185,7 @@ export type CategoryBill = {
   approved_amount: string
   bill_count: number
   status: BillStatus
+  updated_at: string
 }
 
 export type AdminCategoryWiseBillsResponse = {
