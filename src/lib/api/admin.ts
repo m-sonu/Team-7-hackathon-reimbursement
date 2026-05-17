@@ -86,3 +86,11 @@ export function bulkReimburseUser(userId: number, token: string, month?: number)
     token,
   })
 }
+
+export function reimburseByPivot(pivotId: number, token: string) {
+  return axios.post<{ success: boolean; message: string }>({
+    url: urls.adminReimburseByPivot,
+    data: { pivot_id: pivotId },
+    token,
+  })
+}

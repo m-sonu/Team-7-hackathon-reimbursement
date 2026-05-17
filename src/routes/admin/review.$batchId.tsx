@@ -5,6 +5,7 @@ import {
   useAdminCategoryBills,
   useBulkReimburse,
   useRejectBill,
+  useReimburseByPivot,
   useVerifyBill,
 } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
@@ -55,8 +56,10 @@ function AdminReviewPage() {
   const verifyMutation = useVerifyBill(userId, categoryId)
   const rejectMutation = useRejectBill(userId, categoryId)
   const bulkMutation = useBulkReimburse(userId, categoryId)
+  const reimburseByPivotMutation = useReimburseByPivot(userId, categoryId)
 
   const bills = data?.data ?? []
+  const pivotId = bills[0]?.category_monthly_pivot_id ?? null
 
   const statusCounts = bills.reduce(
     (acc, bill) => {
@@ -66,6 +69,8 @@ function AdminReviewPage() {
     },
     {} as Record<string, number>,
   )
+
+  const hasUnreviewedBills = !!(statusCounts['pending'] || statusCounts['under review'])
 
   const handleVerify = (billId: number, approveAmount: number) => {
     verifyMutation.mutate(
@@ -90,6 +95,17 @@ function AdminReviewPage() {
   const handleBulkReimburse = () => {
     bulkMutation.mutate(
       { batchId: categoryId, token },
+      {
+        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
+        onError: () => toast.error('Failed to reimburse bills.'),
+      },
+    )
+  }
+
+  const handleReimburseByPivot = () => {
+    if (!pivotId) return
+    reimburseByPivotMutation.mutate(
+      { pivotId, token },
       {
         onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
         onError: () => toast.error('Failed to reimburse bills.'),
@@ -177,11 +193,22 @@ function AdminReviewPage() {
         </div>
 
         {/* Page heading */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
-          {(search.name || search.date) && (
-            <p className="mt-1 text-sm text-gray-500">{submittedBy}</p>
-          )}
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
+            {(search.name || search.date) && (
+              <p className="mt-1 text-sm text-gray-500">{submittedBy}</p>
+            )}
+          </div>
+          {statusCounts['verified'] && pivotId ? (
+            <Button
+              onClick={handleReimburseByPivot}
+              disabled={hasUnreviewedBills || reimburseByPivotMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {reimburseByPivotMutation.isPending ? '…' : t.adminReview.markAsReimbursed}
+            </Button>
+          ) : null}
         </div>
 
         {/* Bills list */}

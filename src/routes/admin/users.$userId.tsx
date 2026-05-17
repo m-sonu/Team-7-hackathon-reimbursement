@@ -127,6 +127,11 @@ function AdminUserDetailPage() {
     [bills],
   )
 
+  const hasVerifiedBills = React.useMemo(
+    () => bills.some((bill) => bill.status === 'verified'),
+    [bills],
+  )
+
   const canReimburse = React.useMemo(() => {
     if (isFullyReimbursed || bills.length === 0 || status !== 'all') return false
     return bills.every(
@@ -237,7 +242,7 @@ function AdminUserDetailPage() {
                   <Badge variant="success" className="px-4 py-2 text-sm shrink-0">
                     {t.common.statusLabels.paid}
                   </Badge>
-                ) : (
+                ) : hasVerifiedBills ? (
                   <Button
                     onClick={handleMarkReimbursed}
                     disabled={isReimbursing || !canReimburse}
@@ -245,7 +250,7 @@ function AdminUserDetailPage() {
                   >
                     {isReimbursing ? '...' : t.adminUserDetail.markAsReimbursed}
                   </Button>
-                )}
+                ) : null}
               </div>
             </div>
           </CardContent>

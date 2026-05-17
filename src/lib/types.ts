@@ -101,6 +101,7 @@ export type Category = {
 
 export type BillDetailItem = {
   id: number
+  category_monthly_pivot_id: number | null
   bill_no: string | null
   vat_no: string | null
   amount: string
