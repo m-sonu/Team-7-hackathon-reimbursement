@@ -1,7 +1,11 @@
 import { AdminHeader } from '#/components/admin/AdminHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
-import { useAdminCategoryBills, useBulkReimburse, useVerifyBill } from '#/hooks/queries/admin'
+import {
+  useAdminCategoryBills,
+  useBulkReimburse,
+  useVerifyBill,
+} from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
@@ -155,7 +159,9 @@ function AdminReviewPage() {
           <div className="space-y-4">
             {bills.map((bill) => {
               const isVerified = bill.status === 'verified'
-              const isPending = verifyMutation.isPending && verifyMutation.variables?.billId === bill.id
+              const isPending =
+                verifyMutation.isPending &&
+                verifyMutation.variables.billId === bill.id
 
               return (
                 <div
@@ -185,7 +191,9 @@ function AdminReviewPage() {
                   <div className="flex flex-col gap-4 p-5">
                     {isVerified && (
                       <div className="self-end">
-                        <Badge variant="success">{t.adminReview.reviewed}</Badge>
+                        <Badge variant="success">
+                          {t.adminReview.reviewed}
+                        </Badge>
                       </div>
                     )}
 
@@ -223,9 +231,7 @@ function AdminReviewPage() {
                           disabled={isPending}
                           className="w-full bg-indigo-600 hover:bg-indigo-700"
                         >
-                          {isPending
-                            ? '…'
-                            : t.adminReview.markAsReviewed}
+                          {isPending ? '…' : t.adminReview.markAsReviewed}
                         </Button>
                       </div>
                     )}

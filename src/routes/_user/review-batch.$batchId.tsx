@@ -2,6 +2,7 @@ import { Button } from '#/components/ui/button'
 import { useBatchPreview, useSubmitBatch } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import type { BatchPreviewBill } from '#/lib/types'
+import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import {
   AlertTriangle,
@@ -140,6 +141,7 @@ function ReviewBatchPage() {
   const context = Route.useRouteContext()
   const { batchId } = Route.useParams()
   const { t } = useI18n()
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const token = context.token ?? ''
 
@@ -169,6 +171,9 @@ function ReviewBatchPage() {
       {
         onSuccess: () => {
           toast.success(t.reviewBatch.submitSuccess)
+          queryClient.invalidateQueries({
+            queryKey: ['employeeDashboard'],
+          })
           navigate({ to: '/dashboard' })
         },
         onError: (error) => {
@@ -264,7 +269,8 @@ function ReviewBatchPage() {
               Processing Failed
             </p>
             <p className="mt-1 text-sm text-gray-500 max-w-xs">
-              There was an error processing the bills in this batch. Please try uploading again.
+              There was an error processing the bills in this batch. Please try
+              uploading again.
             </p>
           </div>
         )}

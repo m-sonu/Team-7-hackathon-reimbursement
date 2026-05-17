@@ -1,4 +1,8 @@
-import type { AdminCategoryBillsResponse, AdminCategoryWiseBillsResponse, AdminEmployeeBillsResponse } from '../types'
+import type {
+  AdminCategoryBillsResponse,
+  AdminCategoryWiseBillsResponse,
+  AdminEmployeeBillsResponse,
+} from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
@@ -51,7 +55,11 @@ export function fetchAdminCategoryBills(
   })
 }
 
-export function verifyBill(billId: number, token: string) {
+export function verifyBill(
+  billId: number,
+  token: string,
+  data: { status: 'verified' },
+) {
   return axios.post<{ success: boolean; message: string }>({
     url: urls.adminVerifyBill(billId),
     data: {},
