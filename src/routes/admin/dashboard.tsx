@@ -24,11 +24,12 @@ import {
   TableRow,
 } from '#/components/ui/table'
 import { useEmployeeBills } from '#/hooks/queries/admin'
+import { useCategories } from '#/hooks/queries/categories'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { Filter, Users } from 'lucide-react'
+import { Filter, LayoutGrid, Users } from 'lucide-react'
 import * as React from 'react'
 
 function toDateString(d: Date) {
@@ -93,6 +94,9 @@ function AdminDashboardPage() {
   const { data: res, isLoading } = useEmployeeBills(token, filters)
   const employees = res?.data ?? []
   const meta = res?.meta
+
+  const { data: catRes, isLoading: isCatLoading } = useCategories(token)
+  const categories = catRes?.data ?? []
 
   function billsCountBadge(count: number) {
     return <Badge variant="muted">{count}</Badge>
@@ -269,6 +273,56 @@ function AdminDashboardPage() {
               </Pagination>
             </div>
           )}
+        </Card>
+
+        <Card className="mt-6">
+          <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-3.5 text-sm font-semibold text-gray-700">
+            <LayoutGrid className="size-4 text-gray-400" />
+            {t.adminDashboard.categoryLimits}
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t.adminDashboard.colCategory}</TableHead>
+                <TableHead>{t.adminDashboard.colMonthlyLimit}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isCatLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 2 }).map((__, j) => (
+                      <TableCell key={j}>
+                        <div className="h-4 animate-pulse rounded bg-gray-100" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : categories.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={2}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
+                    {t.common.noExpenses}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((cat) => (
+                  <TableRow key={cat.id}>
+                    <TableCell className="font-medium text-gray-900">
+                      {cat.name}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {cat.monthly_limit != null
+                        ? cat.monthly_limit.toLocaleString()
+                        : <span className="text-gray-400 italic">{t.adminDashboard.noLimit}</span>}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </Card>
       </div>
     </div>

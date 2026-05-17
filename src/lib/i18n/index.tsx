@@ -69,6 +69,10 @@ export type Translations = {
     prevPage: string
     nextPage: string
     pageInfo: string
+    categoryLimits: string
+    colCategory: string
+    colMonthlyLimit: string
+    noLimit: string
   }
   adminReview: {
     backToEmployeeDetails: string
@@ -175,6 +179,29 @@ export type Translations = {
     title: string
     description: string
     errorCode: string
+  }
+  adminCategories: {
+    title: string
+    subtitle: string
+    newCategory: string
+    colName: string
+    colMonthlyLimit: string
+    colStatus: string
+    colActions: string
+    active: string
+    inactive: string
+    noLimit: string
+    noCategories: string
+    editCategory: string
+    deleteCategory: string
+    confirmDelete: string
+    saveChanges: string
+    cancel: string
+    placeholderName: string
+    placeholderLimit: string
+    createSuccess: string
+    updateSuccess: string
+    deleteSuccess: string
   }
   auth: {
     sessionExpired: string
