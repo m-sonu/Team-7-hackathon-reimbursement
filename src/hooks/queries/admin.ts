@@ -82,9 +82,9 @@ export function useUserBulkReimburse(userId: number) {
   return useMutation<
     { success: boolean; message: string },
     AxiosError<ApiError>,
-    { token: string }
+    { token: string; month?: number }
   >({
-    mutationFn: ({ token }) => bulkReimburseUser(userId, token),
+    mutationFn: ({ token, month }) => bulkReimburseUser(userId, token, month),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryWiseBills', userId],

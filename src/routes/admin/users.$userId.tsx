@@ -122,9 +122,38 @@ function AdminUserDetailPage() {
 
   const { mutate: markReimbursed, isPending: isReimbursing } = useUserBulkReimburse(Number(userId))
 
+  const isFullyReimbursed = React.useMemo(
+    () => bills.length > 0 && bills.every((bill) => bill.status === 'reimbursed'),
+    [bills],
+  )
+
+  const canReimburse = React.useMemo(() => {
+    if (isFullyReimbursed || bills.length === 0 || status !== 'all') return false
+    return bills.every(
+      (bill) => bill.status === 'verified' || bill.status === 'rejected' || bill.status === 'reimbursed',
+    )
+  }, [bills, isFullyReimbursed, status])
+
+  const parseAmount = (s: string) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0
+
+  const { displayTotalSubmitted, displayTotalApproved } = React.useMemo(() => {
+    if (!isLoading && bills.length > 0 && status === 'all') {
+      const submitted = bills.reduce((sum, b) => sum + parseAmount(b.total_amount), 0)
+      const approved = bills.reduce((sum, b) => sum + parseAmount(b.approved_amount), 0)
+      return {
+        displayTotalSubmitted: submitted.toFixed(2),
+        displayTotalApproved: approved.toFixed(2),
+      }
+    }
+    return {
+      displayTotalSubmitted: search.totalSubmitted ?? '—',
+      displayTotalApproved: search.totalApproved ?? '—',
+    }
+  }, [bills, isLoading, status, search.totalSubmitted, search.totalApproved])
+
   const handleMarkReimbursed = () => {
     markReimbursed(
-      { token },
+      { token, month: Number(month) },
       {
         onSuccess: () => toast.success(t.adminUserDetail.reimbursedSuccess),
         onError: () => toast.error('Failed to mark as reimbursed.'),
@@ -193,7 +222,7 @@ function AdminUserDetailPage() {
                     {t.adminUserDetail.totalSubmitted}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-gray-900">
-                    {search.totalSubmitted ?? '—'}
+                    {displayTotalSubmitted}
                   </p>
                 </div>
                 <div>
@@ -201,16 +230,22 @@ function AdminUserDetailPage() {
                     {t.adminUserDetail.totalApproved}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-gray-900">
-                    {search.totalApproved ?? '—'}
+                    {displayTotalApproved}
                   </p>
                 </div>
-                <Button
-                  onClick={handleMarkReimbursed}
-                  disabled={isReimbursing}
-                  className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
-                >
-                  {isReimbursing ? '...' : t.adminUserDetail.markAsReimbursed}
-                </Button>
+                {isFullyReimbursed ? (
+                  <Badge variant="success" className="px-4 py-2 text-sm shrink-0">
+                    {t.common.statusLabels.paid}
+                  </Badge>
+                ) : (
+                  <Button
+                    onClick={handleMarkReimbursed}
+                    disabled={isReimbursing || !canReimburse}
+                    className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
+                  >
+                    {isReimbursing ? '...' : t.adminUserDetail.markAsReimbursed}
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

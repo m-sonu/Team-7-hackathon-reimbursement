@@ -171,9 +171,8 @@ function ReviewBatchPage() {
       {
         onSuccess: () => {
           toast.success(t.reviewBatch.submitSuccess)
-          queryClient.invalidateQueries({
-            queryKey: ['employeeDashboard'],
-          })
+          queryClient.invalidateQueries({ queryKey: ['employeeDashboard'] })
+          queryClient.invalidateQueries({ queryKey: ['userBills'] })
           navigate({ to: '/dashboard' })
         },
         onError: (error) => {
