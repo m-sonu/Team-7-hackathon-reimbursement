@@ -1,5 +1,5 @@
 import { Button } from '#/components/ui/button'
-import { useBatchPreview, useSubmitBatch } from '#/hooks/queries/bills'
+import { useBatchPreview, useDeleteBill, useSubmitBatch, useUpdateBill } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import type { BatchPreviewBill } from '#/lib/types'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,7 +10,10 @@ import {
   CheckCircle2,
   DollarSign,
   Loader2,
+  Pencil,
   Receipt,
+  Trash2,
+  X,
 } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -19,24 +22,133 @@ export const Route = createFileRoute('/_user/review-batch/$batchId')({
   component: ReviewBatchPage,
 })
 
+// ---------------------------------------------------------------------------
+// Processing steps banner
+// ---------------------------------------------------------------------------
+
+function ProcessingBanner({
+  labels,
+}: {
+  labels: { title: string; subtitle: string; stepUploaded: string; stepScanning: string; stepReview: string }
+}) {
+  const steps = [
+    { label: labels.stepUploaded, state: 'done' as const },
+    { label: labels.stepScanning, state: 'active' as const },
+    { label: labels.stepReview, state: 'pending' as const },
+  ]
+
+  return (
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50 py-12 text-center">
+      <div className="flex items-center justify-center mb-8">
+        {steps.map((step, i) => (
+          <React.Fragment key={step.label}>
+            {i > 0 && (
+              <div
+                className={`h-0.5 w-14 mb-6 ${step.state !== 'pending' ? 'bg-indigo-300' : 'bg-gray-200'}`}
+              />
+            )}
+            <div className="flex flex-col items-center">
+              <div
+                className={`size-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                  step.state === 'done'
+                    ? 'bg-emerald-100 border-emerald-400'
+                    : step.state === 'active'
+                      ? 'bg-indigo-100 border-indigo-400'
+                      : 'bg-gray-100 border-gray-200'
+                }`}
+              >
+                {step.state === 'done' ? (
+                  <CheckCircle2 className="size-5 text-emerald-500" />
+                ) : step.state === 'active' ? (
+                  <Loader2 className="size-5 text-indigo-500 animate-spin" />
+                ) : (
+                  <span className="text-xs font-bold text-gray-400">3</span>
+                )}
+              </div>
+              <span
+                className={`mt-1.5 text-xs font-medium ${
+                  step.state === 'done'
+                    ? 'text-emerald-600'
+                    : step.state === 'active'
+                      ? 'text-indigo-600'
+                      : 'text-gray-400'
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+      <p className="text-base font-semibold text-gray-900">{labels.title}</p>
+      <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">{labels.subtitle}</p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// BillCard
+// ---------------------------------------------------------------------------
+
+type BillCardLabels = {
+  receiptPreview: string
+  extractedData: string
+  amount: string
+  billNo: string
+  vatNo: string
+  validationError: string
+  editBill: string
+  saveBill: string
+  cancelEdit: string
+  removeBill: string
+  fixBill: string
+}
+
 function BillCard({
   bill,
-  currency: _currency,
   isValid,
+  isSaving,
+  isRemoving,
+  onSave,
+  onRemove,
   labels,
 }: {
   bill: BatchPreviewBill
-  currency: string
   isValid: boolean
-  labels: {
-    receiptPreview: string
-    extractedData: string
-    amount: string
-    billNo: string
-    vatNo: string
-    validationError: string
-  }
+  isSaving: boolean
+  isRemoving: boolean
+  onSave: (data: { bill_no: string; vat_no: string; amount: string }) => void
+  onRemove: () => void
+  labels: BillCardLabels
 }) {
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [billNo, setBillNo] = React.useState(bill.bill_no ?? '')
+  const [vatNo, setVatNo] = React.useState(bill.vat_no ?? '')
+  const [amount, setAmount] = React.useState(bill.amount ?? '')
+
+  // Reset edit state when bill data changes (after a successful save)
+  React.useEffect(() => {
+    if (!isSaving) {
+      setBillNo(bill.bill_no ?? '')
+      setVatNo(bill.vat_no ?? '')
+      setAmount(bill.amount ?? '')
+    }
+  }, [bill.bill_no, bill.vat_no, bill.amount, isSaving])
+
+  const isMissingData = bill.validation_error?.includes('Missing') || bill.validation_error?.includes('unreadable')
+
+  const handleSave = () => {
+    onSave({ bill_no: billNo, vat_no: vatNo, amount })
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setBillNo(bill.bill_no ?? '')
+    setVatNo(bill.vat_no ?? '')
+    setAmount(bill.amount ?? '')
+    setIsEditing(false)
+  }
+
   return (
     <div
       className={`rounded-xl border bg-white shadow-sm overflow-hidden ${
@@ -44,7 +156,7 @@ function BillCard({
       }`}
     >
       <div className="flex flex-col sm:flex-row">
-        {/* Receipt Preview */}
+        {/* Receipt preview */}
         <div className="shrink-0 sm:w-52 border-b sm:border-b-0 sm:border-r border-gray-100 bg-gray-50">
           <p className="flex items-center gap-1.5 px-4 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
             <Receipt className="size-3.5" />
@@ -52,12 +164,7 @@ function BillCard({
           </p>
           <div className="px-4 pb-4">
             {bill.file_preview_url ? (
-              <a
-                href={bill.file_preview_url}
-                target="_blank"
-                rel="noreferrer"
-                className="block"
-              >
+              <a href={bill.file_preview_url} target="_blank" rel="noreferrer" className="block">
                 <div className="relative h-44 w-full overflow-hidden rounded-lg border border-gray-200 bg-white hover:border-indigo-400 transition-colors">
                   <img
                     src={bill.file_preview_url}
@@ -65,10 +172,7 @@ function BillCard({
                     className="h-full w-full object-contain"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
-                      const fallback =
-                        e.currentTarget.parentElement?.querySelector(
-                          '.receipt-fallback',
-                        ) as HTMLElement | null
+                      const fallback = e.currentTarget.parentElement?.querySelector('.receipt-fallback') as HTMLElement | null
                       if (fallback) fallback.style.display = 'flex'
                     }}
                   />
@@ -85,57 +189,168 @@ function BillCard({
           </div>
         </div>
 
-        {/* Extracted Data */}
+        {/* Extracted data */}
         <div className="flex-1 p-5">
+          {/* Header row */}
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
               {labels.extractedData}
             </p>
-            {isValid ? (
-              <CheckCircle2 className="size-4 text-emerald-500" />
-            ) : (
-              <AlertTriangle className="size-4 text-red-500" />
-            )}
-          </div>
-
-          <div className="space-y-2.5">
-            <div>
-              <p className="text-xs text-gray-500">{labels.amount}</p>
-              <p className="text-xl font-bold text-gray-900">{bill.amount}</p>
+            <div className="flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100"
+                  >
+                    <X className="size-3" />
+                    {labels.cancelEdit}
+                  </button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="h-6 px-2.5 text-xs bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    {isSaving ? <Loader2 className="size-3 animate-spin" /> : labels.saveBill}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {!isValid && (
+                    <button
+                      type="button"
+                      onClick={onRemove}
+                      disabled={isRemoving}
+                      className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {isRemoving ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-3" />
+                      )}
+                      {labels.removeBill}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100"
+                  >
+                    <Pencil className="size-3" />
+                    {!isValid && isMissingData ? labels.fixBill : labels.editBill}
+                  </button>
+                  {isValid ? (
+                    <CheckCircle2 className="size-4 text-emerald-500" />
+                  ) : (
+                    <AlertTriangle className="size-4 text-red-500" />
+                  )}
+                </>
+              )}
             </div>
-
-            {bill.bill_no && (
-              <div>
-                <p className="text-xs text-gray-500">{labels.billNo}</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {bill.bill_no}
-                </p>
-              </div>
-            )}
-
-            {bill.vat_no && (
-              <div>
-                <p className="text-xs text-gray-500">{labels.vatNo}</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {bill.vat_no}
-                </p>
-              </div>
-            )}
-
-            {!isValid && bill.validation_error && (
-              <div className="mt-3 rounded-md bg-red-50 border border-red-100 px-3 py-2">
-                <p className="text-xs font-semibold text-red-600 mb-0.5">
-                  {labels.validationError}
-                </p>
-                <p className="text-xs text-red-700">{bill.validation_error}</p>
-              </div>
-            )}
           </div>
+
+          {isEditing ? (
+            /* Edit form */
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  {labels.amount}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-500">
+                    {labels.billNo}
+                  </label>
+                  <input
+                    type="text"
+                    value={billNo}
+                    onChange={(e) => setBillNo(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-500">
+                    {labels.vatNo}
+                  </label>
+                  <input
+                    type="text"
+                    value={vatNo}
+                    onChange={(e) => setVatNo(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Display mode */
+            <div className="space-y-2.5">
+              <div>
+                <p className="text-xs text-gray-500">{labels.amount}</p>
+                <p className="text-xl font-bold text-gray-900">{bill.amount}</p>
+              </div>
+
+              {bill.bill_no && (
+                <div>
+                  <p className="text-xs text-gray-500">{labels.billNo}</p>
+                  <p className="text-sm font-medium text-gray-900">{bill.bill_no}</p>
+                </div>
+              )}
+
+              {bill.vat_no && (
+                <div>
+                  <p className="text-xs text-gray-500">{labels.vatNo}</p>
+                  <p className="text-sm font-medium text-gray-900">{bill.vat_no}</p>
+                </div>
+              )}
+
+              {!isValid && bill.validation_error && (
+                <ValidationMessage error={bill.validation_error} label={labels.validationError} />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
 }
+
+function ValidationMessage({ error, label }: { error: string; label: string }) {
+  const isMissing = error.includes('Missing') || error.includes('unreadable')
+  const isDuplicate = error.includes('Duplicate')
+  const isGlobal = error.includes('previous')
+
+  const hint = isMissing
+    ? 'Click "Fix" to enter the bill number manually.'
+    : isDuplicate
+      ? 'Remove one of the duplicate bills.'
+      : isGlobal
+        ? 'This bill was already submitted. Remove it to continue.'
+        : null
+
+  return (
+    <div className="mt-3 rounded-md bg-red-50 border border-red-100 px-3 py-2.5">
+      <p className="text-xs font-semibold text-red-600 mb-0.5">{label}</p>
+      <p className="text-xs text-red-700">{error}</p>
+      {hint && <p className="mt-1 text-xs text-red-500 italic">{hint}</p>}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
 
 function ReviewBatchPage() {
   const { t } = useI18n()
@@ -147,13 +362,15 @@ function ReviewBatchPage() {
 
   const { data, isLoading } = useBatchPreview(Number(batchId), token)
   const { mutate: submit, isPending: isSubmitting } = useSubmitBatch()
+  const { mutate: updateBillMutate, isPending: isUpdating, variables: updateVars } = useUpdateBill()
+  const { mutate: deleteBillMutate, isPending: isDeleting, variables: deleteVars } = useDeleteBill()
 
   const preview = data?.data
   const aiStatus = preview?.ai_processing ?? 'processing'
   const isProcessing = aiStatus === 'processing'
   const isFailed = aiStatus === 'failed'
 
-  const cardLabels = React.useMemo(
+  const cardLabels: BillCardLabels = React.useMemo(
     () => ({
       receiptPreview: t.billDetail.receiptPreview,
       extractedData: t.reviewBatch.extractedData,
@@ -161,9 +378,40 @@ function ReviewBatchPage() {
       billNo: t.reviewBatch.billNo,
       vatNo: t.reviewBatch.vatNo,
       validationError: t.reviewBatch.validationError,
+      editBill: t.reviewBatch.editBill,
+      saveBill: t.reviewBatch.saveBill,
+      cancelEdit: t.reviewBatch.cancelEdit,
+      removeBill: t.reviewBatch.removeBill,
+      fixBill: t.reviewBatch.fixBill,
     }),
     [t],
   )
+
+  const handleSave = (billId: number, data: { bill_no: string; vat_no: string; amount: string }) => {
+    updateBillMutate(
+      { billId, data, token },
+      {
+        onSuccess: () => {
+          toast.success(t.reviewBatch.updateSuccess)
+          queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
+        },
+        onError: () => toast.error(t.reviewBatch.updateError),
+      },
+    )
+  }
+
+  const handleRemove = (billId: number) => {
+    deleteBillMutate(
+      { billId, token },
+      {
+        onSuccess: () => {
+          toast.success(t.reviewBatch.removeSuccess)
+          queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
+        },
+        onError: () => toast.error(t.reviewBatch.removeError),
+      },
+    )
+  }
 
   const handleSubmit = () => {
     submit(
@@ -208,9 +456,7 @@ function ReviewBatchPage() {
 
         {/* Header */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {t.reviewBatch.title}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t.reviewBatch.title}</h1>
           {preview && (
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
               <span className="font-medium text-gray-700">{preview.title}</span>
@@ -229,17 +475,11 @@ function ReviewBatchPage() {
         {isLoading && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-gray-200 bg-white p-5 flex gap-4"
-              >
+              <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 flex gap-4">
                 <div className="h-44 w-52 shrink-0 animate-pulse rounded-lg bg-gray-100" />
                 <div className="flex-1 space-y-3 pt-1">
                   {[1, 2, 3].map((j) => (
-                    <div
-                      key={j}
-                      className="h-4 animate-pulse rounded bg-gray-100"
-                    />
+                    <div key={j} className="h-4 animate-pulse rounded bg-gray-100" />
                   ))}
                 </div>
               </div>
@@ -249,27 +489,24 @@ function ReviewBatchPage() {
 
         {/* AI processing banner */}
         {!isLoading && isProcessing && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 py-14 text-center">
-            <Loader2 className="mb-4 size-10 animate-spin text-indigo-500" />
-            <p className="text-base font-semibold text-gray-900">
-              {t.reviewBatch.processingTitle}
-            </p>
-            <p className="mt-1 text-sm text-gray-500 max-w-xs">
-              {t.reviewBatch.processingSubtitle}
-            </p>
-          </div>
+          <ProcessingBanner
+            labels={{
+              title: t.reviewBatch.processingTitle,
+              subtitle: t.reviewBatch.processingSubtitle,
+              stepUploaded: t.reviewBatch.stepUploaded,
+              stepScanning: t.reviewBatch.stepScanning,
+              stepReview: t.reviewBatch.stepReview,
+            }}
+          />
         )}
 
         {/* AI processing failed banner */}
         {!isLoading && isFailed && (
           <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 py-14 text-center">
             <AlertTriangle className="mb-4 size-10 text-red-500" />
-            <p className="text-base font-semibold text-gray-900">
-              Processing Failed
-            </p>
+            <p className="text-base font-semibold text-gray-900">Processing Failed</p>
             <p className="mt-1 text-sm text-gray-500 max-w-xs">
-              There was an error processing the bills in this batch. Please try
-              uploading again.
+              There was an error processing the bills in this batch. Please try uploading again.
             </p>
           </div>
         )}
@@ -288,8 +525,11 @@ function ReviewBatchPage() {
                     <BillCard
                       key={bill.id}
                       bill={bill}
-                      currency={currency}
                       isValid
+                      isSaving={isUpdating && updateVars?.billId === bill.id}
+                      isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                      onSave={(data) => handleSave(bill.id, data)}
+                      onRemove={() => handleRemove(bill.id)}
                       labels={cardLabels}
                     />
                   ))}
@@ -308,8 +548,11 @@ function ReviewBatchPage() {
                     <BillCard
                       key={bill.id}
                       bill={bill}
-                      currency={currency}
                       isValid={false}
+                      isSaving={isUpdating && updateVars?.billId === bill.id}
+                      isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                      onSave={(data) => handleSave(bill.id, data)}
+                      onRemove={() => handleRemove(bill.id)}
                       labels={cardLabels}
                     />
                   ))}
@@ -337,9 +580,7 @@ function ReviewBatchPage() {
               disabled={isSubmitting || validBills.length === 0}
               className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-6"
             >
-              {isSubmitting ? (
-                <Loader2 className="size-4 animate-spin mr-2" />
-              ) : null}
+              {isSubmitting ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
               {t.reviewBatch.submitForReimbursement}
             </Button>
           </div>

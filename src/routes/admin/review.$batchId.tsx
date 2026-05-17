@@ -311,19 +311,6 @@ function AdminReviewPage() {
           </div>
         )}
       </div>
-
-      {/* Sticky footer */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-        <div className="mx-auto flex max-w-5xl justify-end">
-          <Button
-            onClick={handleBulkReimburse}
-            disabled={bulkMutation.isPending}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            {bulkMutation.isPending ? '…' : t.adminReview.markAsReimbursed}
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }

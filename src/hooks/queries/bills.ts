@@ -1,4 +1,4 @@
-import { createBill, fetchBatchPreview, fetchUserBillDetails, fetchUserBills, submitBatch, type UserBillsFilters } from '#/lib/api/bills'
+import { createBill, deleteBill, fetchBatchPreview, fetchUserBillDetails, fetchUserBills, submitBatch, updateBill, type UserBillsFilters } from '#/lib/api/bills'
 import type { ApiError, BatchDetailResponse, BatchPreview, PaginatedResponse, UserBill } from '#/lib/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
@@ -50,5 +50,25 @@ export function useSubmitBatch() {
     { batchId: number; token: string }
   >({
     mutationFn: ({ batchId, token }) => submitBatch(batchId, token),
+  })
+}
+
+export function useUpdateBill() {
+  return useMutation<
+    { success: boolean; message: string },
+    AxiosError<ApiError>,
+    { billId: number; data: { bill_no?: string | null; vat_no?: string | null; amount?: string }; token: string }
+  >({
+    mutationFn: ({ billId, data, token }) => updateBill(billId, data, token),
+  })
+}
+
+export function useDeleteBill() {
+  return useMutation<
+    { success: boolean; message: string },
+    AxiosError<ApiError>,
+    { billId: number; token: string }
+  >({
+    mutationFn: ({ billId, token }) => deleteBill(billId, token),
   })
 }

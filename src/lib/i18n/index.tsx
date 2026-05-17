@@ -151,6 +151,9 @@ export type Translations = {
     subtitle: string
     processingTitle: string
     processingSubtitle: string
+    stepUploaded: string
+    stepScanning: string
+    stepReview: string
     validBills: string
     invalidBills: string
     extractedData: string
@@ -163,6 +166,16 @@ export type Translations = {
     submitSuccess: string
     monthNote: string
     noValidBills: string
+    editBill: string
+    saveBill: string
+    cancelEdit: string
+    removeBill: string
+    fixBill: string
+    updateSuccess: string
+    updateError: string
+    removeSuccess: string
+    removeError: string
+    confirmRemove: string
   }
   submitSuccess: {
     heading: string

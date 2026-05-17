@@ -54,3 +54,22 @@ export function submitBatch(batchId: number, token: string) {
     token,
   })
 }
+
+export function updateBill(
+  billId: number,
+  data: { bill_no?: string | null; vat_no?: string | null; amount?: string },
+  token: string,
+) {
+  return axios.patch<{ success: boolean; message: string }>({
+    url: `/bills/${billId}`,
+    data,
+    token,
+  })
+}
+
+export function deleteBill(billId: number, token: string) {
+  return axios.del<{ success: boolean; message: string }>({
+    url: `/bills/${billId}`,
+    token,
+  })
+}
