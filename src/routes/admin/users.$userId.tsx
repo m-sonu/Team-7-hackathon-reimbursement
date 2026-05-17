@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
-import { useAdminCategoryWiseBills } from '#/hooks/queries/admin'
+import { useAdminCategoryWiseBills, useUserBulkReimburse } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
@@ -120,8 +120,16 @@ function AdminUserDetailPage() {
 
   const bills = billsRes?.data ?? []
 
+  const { mutate: markReimbursed, isPending: isReimbursing } = useUserBulkReimburse(Number(userId))
+
   const handleMarkReimbursed = () => {
-    toast.success(t.adminUserDetail.reimbursedSuccess)
+    markReimbursed(
+      { token },
+      {
+        onSuccess: () => toast.success(t.adminUserDetail.reimbursedSuccess),
+        onError: () => toast.error('Failed to mark as reimbursed.'),
+      },
+    )
   }
 
   return (
@@ -198,9 +206,10 @@ function AdminUserDetailPage() {
                 </div>
                 <Button
                   onClick={handleMarkReimbursed}
+                  disabled={isReimbursing}
                   className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
                 >
-                  {t.adminUserDetail.markAsReimbursed}
+                  {isReimbursing ? '...' : t.adminUserDetail.markAsReimbursed}
                 </Button>
               </div>
             </div>
@@ -286,8 +295,6 @@ function AdminUserDetailPage() {
                             userId: userId,
                             name: search.name,
                             category: bill.category_name,
-                            totalSubmitted: bill.total_amount,
-                            totalApproved: bill.approved_amount,
                             empName: search.name,
                             empEmail: search.email,
                             empTotalSubmitted: search.totalSubmitted,

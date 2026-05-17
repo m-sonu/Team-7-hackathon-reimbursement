@@ -1,4 +1,4 @@
-import { fetchEmployeeBills, fetchAdminCategoryWiseBills, fetchAdminCategoryBills, verifyBill, rejectBill, bulkReimburse } from '#/lib/api/admin'
+import { fetchEmployeeBills, fetchAdminCategoryWiseBills, fetchAdminCategoryBills, verifyBill, rejectBill, bulkReimburse, bulkReimburseUser } from '#/lib/api/admin'
 import type { EmployeeBillsFilters, AdminCategoryWiseBillsFilters } from '#/lib/api/admin'
 import type { AdminCategoryBillsResponse, AdminCategoryWiseBillsResponse, AdminEmployeeBillsResponse, ApiError } from '#/lib/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -72,6 +72,25 @@ export function useRejectBill(userId: number, categoryId: number) {
       })
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryWiseBills', userId],
+      })
+    },
+  })
+}
+
+export function useUserBulkReimburse(userId: number) {
+  const queryClient = useQueryClient()
+  return useMutation<
+    { success: boolean; message: string },
+    AxiosError<ApiError>,
+    { token: string }
+  >({
+    mutationFn: ({ token }) => bulkReimburseUser(userId, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['adminCategoryWiseBills', userId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['employeeBills'],
       })
     },
   })

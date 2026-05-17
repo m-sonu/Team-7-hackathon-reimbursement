@@ -20,8 +20,6 @@ const searchSchema = z.object({
   name: z.string().optional(),
   category: z.string().optional(),
   date: z.string().optional(),
-  totalSubmitted: z.string().optional(),
-  totalApproved: z.string().optional(),
   empName: z.string().optional(),
   empEmail: z.string().optional(),
   empTotalSubmitted: z.string().optional(),
@@ -164,7 +162,7 @@ function AdminReviewPage() {
                 {t.adminReview.totalSubmitted}
               </p>
               <p className="text-xl font-bold text-gray-900">
-                {search.totalSubmitted ?? '—'}
+                {data?.total_amount ?? '—'}
               </p>
             </div>
             <div className="rounded-lg bg-emerald-500 px-4 py-2 text-right">
@@ -172,7 +170,7 @@ function AdminReviewPage() {
                 {t.adminReview.totalApproved}
               </p>
               <p className="text-xl font-bold text-white">
-                {search.totalApproved ?? '—'}
+                {data?.approve_amount ?? '—'}
               </p>
             </div>
           </div>

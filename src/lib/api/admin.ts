@@ -78,3 +78,11 @@ export function bulkReimburse(batchId: number, token: string) {
     token,
   })
 }
+
+export function bulkReimburseUser(userId: number, token: string) {
+  return axios.post<{ success: boolean; message: string }>({
+    url: urls.adminUserBulkReimburse,
+    data: { user_id: userId },
+    token,
+  })
+}

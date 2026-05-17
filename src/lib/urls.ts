@@ -11,6 +11,7 @@ export const urls = {
   adminVerifyBill: (billId: number) => `/admin/bills/${billId}/verify`,
   adminRejectBill: (billId: number) => `/admin/bills/${billId}/verify`,
   adminBulkReimburse: (batchId: number) => `/admin/bills/${batchId}/bulk-reimburse`,
+  adminUserBulkReimburse: '/admin/bills/bulk-reimburse',
   categories: '/categories',
   categoryCreate: '/categories',
   categoryUpdate: (id: number) => `/categories/${id}`,
