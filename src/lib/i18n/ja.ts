@@ -99,6 +99,7 @@ const ja: Translations = {
     reject: '却下',
     rejected: '却下済',
     rejectSuccess: '明細を却下しました。',
+    reimbursed: '精算済',
   },
   adminUserDetail: {
     totalSubmitted: '申請合計',

@@ -60,9 +60,9 @@ function AdminReviewPage() {
 
   const bills = data?.data ?? []
 
-  const handleVerify = (billId: number) => {
+  const handleVerify = (billId: number, approveAmount: number) => {
     verifyMutation.mutate(
-      { billId, token },
+      { billId, token, approveAmount },
       {
         onSuccess: () => toast.success(t.adminReview.reviewedSuccess),
         onError: () => toast.error('Failed to mark as reviewed.'),
@@ -172,6 +172,8 @@ function AdminReviewPage() {
             {bills.map((bill) => {
               const isVerified = bill.status === 'verified'
               const isRejected = bill.status === 'rejected'
+              const isReimbursed = bill.status === 'reimbursed'
+              const isSettled = isVerified || isRejected || isReimbursed
               const isPending =
                 verifyMutation.isPending &&
                 verifyMutation.variables.billId === bill.id
@@ -205,7 +207,7 @@ function AdminReviewPage() {
 
                   {/* Bill details */}
                   <div className="flex flex-col gap-4 p-5">
-                    {(isVerified || isRejected) && (
+                    {isSettled && (
                       <div className="self-end">
                         {isVerified && (
                           <Badge variant="success">
@@ -215,6 +217,11 @@ function AdminReviewPage() {
                         {isRejected && (
                           <Badge variant="destructive">
                             {t.adminReview.rejected}
+                          </Badge>
+                        )}
+                        {isReimbursed && (
+                          <Badge variant="success">
+                            {t.adminReview.reimbursed}
                           </Badge>
                         )}
                       </div>
@@ -244,30 +251,28 @@ function AdminReviewPage() {
                       </p>
                     )}
 
-                    {!isVerified && !isRejected && (
-                      <div>
-                        <p className="mb-2 text-xs font-medium text-gray-500">
-                          {t.adminReview.updateStatus}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleVerify(bill.id)}
-                            disabled={isPending || isRejecting}
-                            className="flex-1 bg-indigo-600 hover:bg-indigo-700"
-                          >
-                            {isPending ? '…' : t.adminReview.markAsReviewed}
-                          </Button>
-                          <Button
-                            onClick={() => handleReject(bill.id)}
-                            disabled={isPending || isRejecting}
-                            variant="destructive"
-                            className="flex-1"
-                          >
-                            {isRejecting ? '…' : t.adminReview.reject}
-                          </Button>
-                        </div>
+                    <div>
+                      <p className="mb-2 text-xs font-medium text-gray-500">
+                        {t.adminReview.updateStatus}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleVerify(bill.id, bill.amount_raw)}
+                          disabled={isSettled || isPending || isRejecting}
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                        >
+                          {isPending ? '…' : t.adminReview.markAsReviewed}
+                        </Button>
+                        <Button
+                          onClick={() => handleReject(bill.id)}
+                          disabled={isSettled || isPending || isRejecting}
+                          variant="destructive"
+                          className="flex-1 disabled:opacity-50"
+                        >
+                          {isRejecting ? '…' : t.adminReview.reject}
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               )

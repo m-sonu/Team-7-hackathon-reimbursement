@@ -44,9 +44,9 @@ export function useVerifyBill(userId: number, categoryId: number) {
   return useMutation<
     { success: boolean; message: string },
     AxiosError<ApiError>,
-    { billId: number; token: string }
+    { billId: number; token: string; approveAmount: number }
   >({
-    mutationFn: ({ billId, token }) => verifyBill(billId, token),
+    mutationFn: ({ billId, token, approveAmount }) => verifyBill(billId, token, approveAmount),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryBills', userId, categoryId],

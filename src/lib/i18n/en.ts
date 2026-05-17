@@ -99,6 +99,7 @@ const en: Translations = {
     reject: 'Reject',
     rejected: 'Rejected',
     rejectSuccess: 'Bill rejected successfully.',
+    reimbursed: 'Reimbursed',
   },
   adminUserDetail: {
     totalSubmitted: 'Total Submitted',

@@ -55,10 +55,10 @@ export function fetchAdminCategoryBills(
   })
 }
 
-export function verifyBill(billId: number, token: string) {
+export function verifyBill(billId: number, token: string, approveAmount: number) {
   return axios.post<{ success: boolean; message: string }>({
     url: urls.adminVerifyBill(billId),
-    data: { status: 'verified' },
+    data: { status: 'verified', approve_amount: approveAmount },
     token,
   })
 }

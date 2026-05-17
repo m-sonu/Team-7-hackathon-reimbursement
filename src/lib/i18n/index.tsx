@@ -90,6 +90,7 @@ export type Translations = {
     reject: string
     rejected: string
     rejectSuccess: string
+    reimbursed: string
   }
   adminUserDetail: {
     totalSubmitted: string
