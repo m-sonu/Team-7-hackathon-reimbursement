@@ -138,9 +138,9 @@ function BillCard({
 }
 
 function ReviewBatchPage() {
+  const { t } = useI18n()
   const context = Route.useRouteContext()
   const { batchId } = Route.useParams()
-  const { t } = useI18n()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const token = context.token ?? ''
@@ -177,7 +177,7 @@ function ReviewBatchPage() {
           navigate({ to: '/dashboard' })
         },
         onError: (error) => {
-          const msg = error.response?.data?.message
+          const msg = error.response?.data.message || ''
           if (msg) toast.error(msg)
         },
       },
