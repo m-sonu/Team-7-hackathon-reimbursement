@@ -140,15 +140,18 @@ function AdminUserDetailPage() {
   }, [bills, isFullyReimbursed, status])
 
   const parseAmount = (s: string) => parseFloat(s.replace(/[^0-9.]/g, '')) || 0
+  const getCurrencyPrefix = (s: string) => s.match(/^([^0-9]+)/)?.[1].trim() ?? ''
 
   const { displayTotalSubmitted, displayTotalApproved } = React.useMemo(() => {
     if (!isLoading && bills.length > 0 && status === 'all') {
+      const prefix = getCurrencyPrefix(bills[0].total_amount)
       const submitted = bills.reduce((sum, b) => sum + parseAmount(b.total_amount), 0)
       const approved = bills.reduce((sum, b) => sum + parseAmount(b.approved_amount), 0)
-      console.log("here only")
+      const fmt = (n: number) => prefix ? `${prefix} ${n.toFixed(2)}` : n.toFixed(2)
+
       return {
-        displayTotalSubmitted: search.totalSubmitted,
-        displayTotalApproved: search.totalApproved,
+        displayTotalSubmitted: fmt(submitted),
+        displayTotalApproved: fmt(approved),
       }
     }
     return {

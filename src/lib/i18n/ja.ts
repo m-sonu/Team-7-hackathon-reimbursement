@@ -2,7 +2,7 @@ import type { Translations } from './index'
 
 const ja: Translations = {
   common: {
-    appName: 'Haritaki Tanuki',
+    appName: 'Harateku Tanuki',
     tagline: '経費精算システム',
     dashboard: 'ダッシュボード',
     logOut: 'ログアウト',

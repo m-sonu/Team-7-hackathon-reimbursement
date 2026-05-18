@@ -2,7 +2,7 @@ import type { Translations } from './index'
 
 const en: Translations = {
   common: {
-    appName: 'Haritaki Tanuki',
+    appName: 'Harateku Tanuki',
     tagline: 'Reimbursement System',
     dashboard: 'Dashboard',
     logOut: 'Log out',
@@ -159,7 +159,8 @@ const en: Translations = {
     title: 'Review Extracted Data',
     subtitle: 'Verify AI-extracted details before submitting for reimbursement',
     processingTitle: 'AI is processing your receipts…',
-    processingSubtitle: 'This usually takes a few seconds. The page will update automatically.',
+    processingSubtitle:
+      'This usually takes a few seconds. The page will update automatically.',
     stepUploaded: 'Uploaded',
     stepScanning: 'AI Scanning',
     stepReview: 'Review',
@@ -173,7 +174,8 @@ const en: Translations = {
     totalAmount: 'Total Amount',
     submitForReimbursement: 'Submit for Reimbursement',
     submitSuccess: 'Bills submitted for reimbursement successfully.',
-    monthNote: 'Bills submitted after the 25th will be reimbursed in the next month.',
+    monthNote:
+      'Bills submitted after the 25th will be reimbursed in the next month.',
     noValidBills: 'No valid bills to submit.',
     editBill: 'Edit',
     saveBill: 'Save',
@@ -188,7 +190,8 @@ const en: Translations = {
   },
   submitSuccess: {
     heading: 'Expense Submitted Successfully!',
-    subtitle: "Your expense has been submitted for review. You'll be notified once it's processed.",
+    subtitle:
+      "Your expense has been submitted for review. You'll be notified once it's processed.",
     detailsTitle: 'Submitted Details',
     labelTitle: 'Title',
     labelDate: 'Date',
