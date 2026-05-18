@@ -145,9 +145,10 @@ function AdminUserDetailPage() {
     if (!isLoading && bills.length > 0 && status === 'all') {
       const submitted = bills.reduce((sum, b) => sum + parseAmount(b.total_amount), 0)
       const approved = bills.reduce((sum, b) => sum + parseAmount(b.approved_amount), 0)
+      console.log("here only")
       return {
-        displayTotalSubmitted: submitted.toFixed(2),
-        displayTotalApproved: approved.toFixed(2),
+        displayTotalSubmitted: search.totalSubmitted,
+        displayTotalApproved: search.totalApproved,
       }
     }
     return {
