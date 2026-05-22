@@ -140,7 +140,7 @@ function UploadExpensePage() {
           toast.success(t.uploadExpense.successMessage)
           navigate({
             to: '/review-batch/$batchId',
-            params: { batchId: String(res.batch_id) },
+            params: { batchId: String(res.data.batch_id) },
           })
         },
         onError: (error) => {

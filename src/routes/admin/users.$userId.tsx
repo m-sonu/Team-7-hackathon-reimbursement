@@ -118,7 +118,7 @@ function AdminUserDetailPage() {
     filters,
   )
 
-  const bills = billsRes?.data ?? []
+  const bills = billsRes?.data?.data ?? []
 
   const { mutate: markReimbursed, isPending: isReimbursing } = useUserBulkReimburse(Number(userId))
 

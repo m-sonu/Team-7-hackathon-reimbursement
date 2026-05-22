@@ -2,7 +2,7 @@ export const urls = {
   login: '/login',
   logout: '/logout',
   userDashboard: (id: number) => `/employee/${id}/dashboard`,
-  userBills: (id: number) => `/employee/${id}/bills`,
+  userBills: (id: number) => `/user/${id}/bills`,
   userBillDetails: (id: number) => `/employee/bill/${id}`,
   employeeBills: '/admin/employee/bills',
   adminCategoryWiseBills: (userId: number) =>

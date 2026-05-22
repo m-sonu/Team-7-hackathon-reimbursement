@@ -33,7 +33,7 @@ export function fetchUserBillDetails(billId: number, token: string) {
 }
 
 export function createBill(data: FormData, token: string) {
-  return axios.formdataPost<{ message: string; batch_id: number; title: string }>({
+  return axios.formdataPost<{ success: boolean; message: string; data: { batch_id: number; title: string } }>({
     url: urls.bills,
     data,
     token,

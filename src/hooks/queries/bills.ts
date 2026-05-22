@@ -25,7 +25,7 @@ export function useUserBillDetails(billId: number, token: string) {
 
 export function useCreateBill() {
   return useMutation<
-    { message: string; batch_id: number; title: string },
+    { success: boolean; message: string; data: { batch_id: number; title: string } },
     AxiosError<ApiError>,
     { data: FormData; token: string }
   >({

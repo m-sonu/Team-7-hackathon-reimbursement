@@ -42,13 +42,15 @@ export type CategoryAmount = {
 export type EmployeeDashboardResponse = {
   success: boolean
   message: string
-  total_bills: number
-  total_approved_amount: string
-  amount: string
-  approved_amount: string
-  current_month_verified_bills: number
-  category_wise_amounts: CategoryAmount[]
   meta: PaginationMeta
+  data: {
+    total_bills: number
+    total_approved_amount: string
+    amount: string
+    approved_amount: string
+    current_month_verified_bills: number
+    category_wise_amounts: CategoryAmount[]
+  }
 }
 
 export type BillStatus =
@@ -130,13 +132,15 @@ export type BillDetailItem = {
 export type BatchDetailResponse = {
   success: boolean
   message: string
-  id: number
-  title: string
-  category: string | null
-  created_date: string
-  approved_amount: string
-  data: BillDetailItem[]
   meta: PaginationMeta
+  data: {
+    id: number
+    title: string
+    category: string | null
+    created_date: string
+    approved_amount: string
+    data: BillDetailItem[]
+  }
 }
 
 export type BatchPreviewBill = {
@@ -172,12 +176,14 @@ export type BatchPreview = {
 export type AdminEmployeeBillsResponse = {
   success: boolean
   message: string
-  month: number
-  year: number
-  start_date: string
-  end_date: string
-  data: EmployeeBill[]
   meta: PaginationMeta
+  data: {
+    month: number
+    year: number
+    start_date: string
+    end_date: string
+    data: EmployeeBill[]
+  }
 }
 
 export type CategoryBill = {
@@ -193,8 +199,10 @@ export type CategoryBill = {
 export type AdminCategoryWiseBillsResponse = {
   success: boolean
   message: string
-  user_id: number
-  data: CategoryBill[]
+  data: {
+    user_id: number
+    data: CategoryBill[]
+  }
 }
 
 export type AdminBillItem = BillDetailItem
@@ -202,9 +210,11 @@ export type AdminBillItem = BillDetailItem
 export type AdminCategoryBillsResponse = {
   success: boolean
   message: string
-  total_amount: string
-  approve_amount: string
-  bill_count: number
-  data: AdminBillItem[]
   meta: PaginationMeta
+  data: {
+    total_amount: string
+    approve_amount: string
+    bill_count: number
+    data: AdminBillItem[]
+  }
 }

@@ -91,7 +91,7 @@ function BillDetailPage() {
   const token = context.token ?? ''
 
   const { data, isLoading, isError } = useUserBillDetails(Number(billId), token)
-  const batch = data
+  const batch = data?.data
 
   const timelineLabels = {
     submitted: t.billDetail.stepSubmitted,

@@ -92,7 +92,7 @@ function AdminDashboardPage() {
   )
 
   const { data: res, isLoading } = useEmployeeBills(token, filters)
-  const employees = res?.data ?? []
+  const employees = res?.data?.data ?? []
   const meta = res?.meta
 
   const { data: catRes, isLoading: isCatLoading } = useCategories(token)

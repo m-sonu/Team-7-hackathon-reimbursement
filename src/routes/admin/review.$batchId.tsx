@@ -58,7 +58,7 @@ function AdminReviewPage() {
   const bulkMutation = useBulkReimburse(userId, categoryId)
   const reimburseByPivotMutation = useReimburseByPivot(userId, categoryId)
 
-  const bills = data?.data ?? []
+  const bills = data?.data?.data ?? []
   const pivotId = bills[0]?.category_monthly_pivot_id ?? null
 
   const statusCounts = bills.reduce(
@@ -178,7 +178,7 @@ function AdminReviewPage() {
                 {t.adminReview.totalSubmitted}
               </p>
               <p className="text-xl font-bold text-gray-900">
-                {data?.total_amount ?? '—'}
+                {data?.data?.total_amount ?? '—'}
               </p>
             </div>
             <div className="rounded-lg bg-emerald-500 px-4 py-2 text-right">
@@ -186,7 +186,7 @@ function AdminReviewPage() {
                 {t.adminReview.totalApproved}
               </p>
               <p className="text-xl font-bold text-white">
-                {data?.approve_amount ?? '—'}
+                {data?.data?.approve_amount ?? '—'}
               </p>
             </div>
           </div>
