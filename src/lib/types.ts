@@ -148,6 +148,7 @@ export type BatchPreviewBill = {
   bill_no: string | null
   vat_no: string | null
   amount: string
+  amount_raw: number
   approved_amount: string
   status: string
   is_valid: boolean

@@ -112,6 +112,10 @@ function BillCard({
   onSave,
   onRemove,
   labels,
+  isEditDisabled,
+  isFixDisabled,
+  editDisabledReason,
+  fixDisabledReason,
 }: {
   bill: BatchPreviewBill
   isValid: boolean
@@ -120,22 +124,29 @@ function BillCard({
   onSave: (data: { bill_no: string; vat_no: string; amount: string }) => void
   onRemove: () => void
   labels: BillCardLabels
+  isEditDisabled?: boolean
+  isFixDisabled?: boolean
+  editDisabledReason?: string
+  fixDisabledReason?: string
 }) {
   const [isEditing, setIsEditing] = React.useState(false)
   const [billNo, setBillNo] = React.useState(bill.bill_no ?? '')
   const [vatNo, setVatNo] = React.useState(bill.vat_no ?? '')
-  const [amount, setAmount] = React.useState(bill.amount ?? '')
+  const [amount, setAmount] = React.useState(String(bill.amount_raw ?? ''))
 
   // Reset edit state when bill data changes (after a successful save)
   React.useEffect(() => {
     if (!isSaving) {
       setBillNo(bill.bill_no ?? '')
       setVatNo(bill.vat_no ?? '')
-      setAmount(bill.amount ?? '')
+      setAmount(String(bill.amount_raw ?? ''))
     }
-  }, [bill.bill_no, bill.vat_no, bill.amount, isSaving])
+  }, [bill.bill_no, bill.vat_no, bill.amount_raw, isSaving])
 
   const isMissingData = bill.validation_error?.includes('Missing') || bill.validation_error?.includes('unreadable')
+  const isFix = !isValid && isMissingData
+  const actionDisabled = isFix ? (isFixDisabled ?? false) : (isEditDisabled ?? false)
+  const actionDisabledReason = isFix ? fixDisabledReason : editDisabledReason
 
   const handleSave = () => {
     onSave({ bill_no: billNo, vat_no: vatNo, amount })
@@ -145,7 +156,7 @@ function BillCard({
   const handleCancel = () => {
     setBillNo(bill.bill_no ?? '')
     setVatNo(bill.vat_no ?? '')
-    setAmount(bill.amount ?? '')
+    setAmount(String(bill.amount_raw ?? ''))
     setIsEditing(false)
   }
 
@@ -237,10 +248,16 @@ function BillCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100"
+                    disabled={actionDisabled}
+                    title={actionDisabled ? actionDisabledReason : undefined}
+                    className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium ${
+                      actionDisabled
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:bg-gray-100'
+                    }`}
                   >
                     <Pencil className="size-3" />
-                    {!isValid && isMissingData ? labels.fixBill : labels.editBill}
+                    {isFix ? labels.fixBill : labels.editBill}
                   </button>
                   {isValid ? (
                     <CheckCircle2 className="size-4 text-emerald-500" />
@@ -301,19 +318,15 @@ function BillCard({
                 <p className="text-xl font-bold text-gray-900">{bill.amount}</p>
               </div>
 
-              {bill.bill_no && (
-                <div>
-                  <p className="text-xs text-gray-500">{labels.billNo}</p>
-                  <p className="text-sm font-medium text-gray-900">{bill.bill_no}</p>
-                </div>
-              )}
+              <div>
+                <p className="text-xs text-gray-500">{labels.billNo}</p>
+                <p className="text-sm font-medium text-gray-900">{bill.bill_no ?? '—'}</p>
+              </div>
 
-              {bill.vat_no && (
-                <div>
-                  <p className="text-xs text-gray-500">{labels.vatNo}</p>
-                  <p className="text-sm font-medium text-gray-900">{bill.vat_no}</p>
-                </div>
-              )}
+              <div>
+                <p className="text-xs text-gray-500">{labels.vatNo}</p>
+                <p className="text-sm font-medium text-gray-900">{bill.vat_no ?? '—'}</p>
+              </div>
 
               {!isValid && bill.validation_error && (
                 <ValidationMessage error={bill.validation_error} label={labels.validationError} />
@@ -435,6 +448,37 @@ function ReviewBatchPage() {
   const invalidBills = preview?.invalid_bills ?? []
   const currency = preview?.currency ?? ''
 
+  const fixedBillNos = React.useMemo(
+    () =>
+      new Set(
+        invalidBills
+          .filter((b) => b.bill_no !== null && b.status !== 'failed')
+          .map((b) => b.bill_no as string),
+      ),
+    [invalidBills],
+  )
+
+  const getEditDisabledReason = (bill: BatchPreviewBill): string | undefined => {
+    if (bill.status === 'failed') return 'Cannot edit a failed bill'
+    if (bill.status === 'approved' || bill.status === 'rejected')
+      return 'Cannot edit an approved or rejected bill'
+    if (bill.validation_error?.includes('previous'))
+      return 'This bill already exists in a previous submission'
+    if (bill.validation_error?.includes('Duplicate'))
+      return 'Cannot edit a duplicate bill'
+    return undefined
+  }
+
+  const getFixDisabledReason = (bill: BatchPreviewBill): string | undefined => {
+    const hasMissingData =
+      bill.validation_error?.includes('Missing') || bill.validation_error?.includes('unreadable')
+    if (hasMissingData) return undefined
+    if (bill.status !== 'failed') return 'This bill has already been processed'
+    if (bill.bill_no !== null && fixedBillNos.has(bill.bill_no))
+      return 'Another duplicate bill has already been fixed'
+    return undefined
+  }
+
   const formatTotal = (amount: number) => {
     if (!amount) return `${currency} 0`
     return `${currency} ${amount.toLocaleString()}`
@@ -521,18 +565,23 @@ function ReviewBatchPage() {
                   {t.reviewBatch.validBills} ({validBills.length})
                 </h2>
                 <div className="space-y-3">
-                  {validBills.map((bill) => (
-                    <BillCard
-                      key={bill.id}
-                      bill={bill}
-                      isValid
-                      isSaving={isUpdating && updateVars?.billId === bill.id}
-                      isRemoving={isDeleting && deleteVars?.billId === bill.id}
-                      onSave={(data) => handleSave(bill.id, data)}
-                      onRemove={() => handleRemove(bill.id)}
-                      labels={cardLabels}
-                    />
-                  ))}
+                  {validBills.map((bill) => {
+                    const editDisabledReason = getEditDisabledReason(bill)
+                    return (
+                      <BillCard
+                        key={bill.id}
+                        bill={bill}
+                        isValid
+                        isSaving={isUpdating && updateVars?.billId === bill.id}
+                        isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                        onSave={(data) => handleSave(bill.id, data)}
+                        onRemove={() => handleRemove(bill.id)}
+                        labels={cardLabels}
+                        isEditDisabled={editDisabledReason !== undefined}
+                        editDisabledReason={editDisabledReason}
+                      />
+                    )
+                  })}
                 </div>
               </section>
             )}
@@ -544,18 +593,26 @@ function ReviewBatchPage() {
                   {t.reviewBatch.invalidBills} ({invalidBills.length})
                 </h2>
                 <div className="space-y-3">
-                  {invalidBills.map((bill) => (
-                    <BillCard
-                      key={bill.id}
-                      bill={bill}
-                      isValid={false}
-                      isSaving={isUpdating && updateVars?.billId === bill.id}
-                      isRemoving={isDeleting && deleteVars?.billId === bill.id}
-                      onSave={(data) => handleSave(bill.id, data)}
-                      onRemove={() => handleRemove(bill.id)}
-                      labels={cardLabels}
-                    />
-                  ))}
+                  {invalidBills.map((bill) => {
+                    const editDisabledReason = getEditDisabledReason(bill)
+                    const fixDisabledReason = getFixDisabledReason(bill)
+                    return (
+                      <BillCard
+                        key={bill.id}
+                        bill={bill}
+                        isValid={false}
+                        isSaving={isUpdating && updateVars?.billId === bill.id}
+                        isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                        onSave={(data) => handleSave(bill.id, data)}
+                        onRemove={() => handleRemove(bill.id)}
+                        labels={cardLabels}
+                        isEditDisabled={editDisabledReason !== undefined}
+                        editDisabledReason={editDisabledReason}
+                        isFixDisabled={fixDisabledReason !== undefined}
+                        fixDisabledReason={fixDisabledReason}
+                      />
+                    )
+                  })}
                 </div>
               </section>
             )}
