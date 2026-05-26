@@ -24,12 +24,11 @@ import {
   TableRow,
 } from '#/components/ui/table'
 import { useEmployeeBills } from '#/hooks/queries/admin'
-import { useCategories } from '#/hooks/queries/categories'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { Filter, LayoutGrid, Users } from 'lucide-react'
+import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
 
 function toDateString(d: Date) {
@@ -94,9 +93,6 @@ function AdminDashboardPage() {
   const { data: res, isLoading } = useEmployeeBills(token, filters)
   const employees = res?.data?.data ?? []
   const meta = res?.meta
-
-  const { data: catRes, isLoading: isCatLoading } = useCategories(token)
-  const categories = catRes?.data ?? []
 
   function billsCountBadge(count: number) {
     return <Badge variant="muted">{count}</Badge>

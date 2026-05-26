@@ -3,7 +3,6 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import {
   useAdminCategoryBills,
-  useBulkReimburse,
   useRejectBill,
   useReimburseByPivot,
   useVerifyBill,
@@ -13,7 +12,7 @@ import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, FileImage } from 'lucide-react'
-import { toast } from 'react-toastify'
+import { useTanukiPopup } from '#/components/tanuki'
 import { z } from 'zod'
 
 const searchSchema = z.object({
@@ -55,8 +54,8 @@ function AdminReviewPage() {
   const { data, isLoading } = useAdminCategoryBills(userId, categoryId, token)
   const verifyMutation = useVerifyBill(userId, categoryId)
   const rejectMutation = useRejectBill(userId, categoryId)
-  const bulkMutation = useBulkReimburse(userId, categoryId)
   const reimburseByPivotMutation = useReimburseByPivot(userId, categoryId)
+  const { showSuccess, showError } = useTanukiPopup()
 
   const bills = data?.data?.data ?? []
   const pivotId = bills[0]?.category_monthly_pivot_id ?? null
@@ -76,8 +75,8 @@ function AdminReviewPage() {
     verifyMutation.mutate(
       { billId, token, approveAmount },
       {
-        onSuccess: () => toast.success(t.adminReview.reviewedSuccess),
-        onError: () => toast.error('Failed to mark as reviewed.'),
+        onSuccess: () => showSuccess('ステータス更新！', '変更が反映されました'),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }
@@ -86,18 +85,8 @@ function AdminReviewPage() {
     rejectMutation.mutate(
       { billId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.rejectSuccess),
-        onError: () => toast.error('Failed to reject bill.'),
-      },
-    )
-  }
-
-  const handleBulkReimburse = () => {
-    bulkMutation.mutate(
-      { batchId: categoryId, token },
-      {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onSuccess: () => showSuccess('ステータス更新！', '変更が反映されました'),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }
@@ -107,8 +96,8 @@ function AdminReviewPage() {
     reimburseByPivotMutation.mutate(
       { pivotId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onSuccess: () => showSuccess('ステータス更新！', '変更が反映されました'),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }

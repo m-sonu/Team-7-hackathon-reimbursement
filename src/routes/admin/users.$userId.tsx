@@ -29,7 +29,7 @@ import {
 } from '@tanstack/react-router'
 import { ArrowLeft, Eye } from 'lucide-react'
 import * as React from 'react'
-import { toast } from 'react-toastify'
+import { useTanukiPopup } from '#/components/tanuki'
 import { z } from 'zod'
 
 const searchSchema = z.object({
@@ -121,6 +121,7 @@ function AdminUserDetailPage() {
   const bills = billsRes?.data?.data ?? []
 
   const { mutate: markReimbursed, isPending: isReimbursing } = useUserBulkReimburse(Number(userId))
+  const { showSuccess, showError } = useTanukiPopup()
 
   const isFullyReimbursed = React.useMemo(
     () => bills.length > 0 && bills.every((bill) => bill.status === 'reimbursed'),
@@ -164,8 +165,8 @@ function AdminUserDetailPage() {
     markReimbursed(
       { token, month: Number(month) },
       {
-        onSuccess: () => toast.success(t.adminUserDetail.reimbursedSuccess),
-        onError: () => toast.error('Failed to mark as reimbursed.'),
+        onSuccess: () => showSuccess('ステータス更新！', '変更が反映されました'),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }

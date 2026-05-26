@@ -6,13 +6,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
+import { useTanukiPopup } from '#/components/tanuki'
 import { useCreateBill } from '#/hooks/queries/bills'
 import { useCategories } from '#/hooks/queries/categories'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ImageIcon, Upload, X } from 'lucide-react'
 import * as React from 'react'
-import { toast } from 'react-toastify'
 
 export const Route = createFileRoute('/_user/upload-expense')({
   component: UploadExpensePage,
@@ -48,6 +48,7 @@ function UploadExpensePage() {
   const categories = categoriesRes?.data ?? []
 
   const { mutate: createBill, isPending } = useCreateBill()
+  const { showSuccess, showError } = useTanukiPopup()
 
   const addFiles = React.useCallback(
     (incoming: FileList | null) => {
@@ -137,15 +138,20 @@ function UploadExpensePage() {
       { data: formData, token },
       {
         onSuccess: (res) => {
-          toast.success(t.uploadExpense.successMessage)
+          showSuccess('アップロード完了！', 'ファイルが正常に送信されました')
           navigate({
             to: '/review-batch/$batchId',
             params: { batchId: String(res.data.batch_id) },
+            search: { skipLoader: true },
           })
         },
         onError: (error) => {
-          const msg = error.response?.data?.message
-          if (msg) toast.error(msg)
+          const data = error.response?.data
+          const validationErrors = data?.errors
+          const firstValidationMsg = validationErrors
+            ? (Object.values(validationErrors).flat()[0] as string | undefined)
+            : undefined
+          showError('エラーが発生しました', firstValidationMsg ?? data?.message ?? 'もう一度お試しください')
         },
       },
     )
