@@ -225,6 +225,7 @@ const ja: Translations = {
     createSuccess: 'カテゴリを作成しました。',
     updateSuccess: 'カテゴリを更新しました。',
     deleteSuccess: 'カテゴリを削除しました。',
+    colJPName: 'ジェーピー',
   },
   auth: {
     sessionExpired: 'セッションが切れました。再度ログインしてください。',

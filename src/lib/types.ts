@@ -33,7 +33,7 @@ export type LoginResponse = {
 
 export type CategoryAmount = {
   category_id: number
-  category: string
+  category: { en: string; jp: string }
   approved_amount: string
   amount: string
   bill_count: number
@@ -97,6 +97,8 @@ export type EmployeeBill = {
 export type Category = {
   id: number
   name: string
+  jp_name?: string | null
+  locale?: { en: string; jp: string }
   monthly_limit?: number | null
   is_active?: boolean
 }
@@ -112,6 +114,7 @@ export type BillDetailItem = {
   status: string
   is_valid: boolean
   validation_error: string | null
+  reason_for_action: string | null
   file_preview_url: string | null
   category: { id: number; name: string } | null
   billUploadBatch: {

@@ -1,5 +1,5 @@
 import { fetchEmployeeBills, fetchAdminCategoryWiseBills, fetchAdminCategoryBills, verifyBill, rejectBill, bulkReimburse, bulkReimburseUser, reimburseByPivot } from '#/lib/api/admin'
-import type { EmployeeBillsFilters, AdminCategoryWiseBillsFilters } from '#/lib/api/admin'
+import type { EmployeeBillsFilters, AdminCategoryWiseBillsFilters, AdminCategoryBillsFilters } from '#/lib/api/admin'
 import type { AdminCategoryBillsResponse, AdminCategoryWiseBillsResponse, AdminEmployeeBillsResponse, ApiError } from '#/lib/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
@@ -31,10 +31,11 @@ export function useAdminCategoryBills(
   userId: number,
   categoryId: number,
   token: string,
+  filters?: AdminCategoryBillsFilters,
 ) {
   return useQuery<AdminCategoryBillsResponse, AxiosError<ApiError>>({
-    queryKey: ['adminCategoryBills', userId, categoryId],
-    queryFn: () => fetchAdminCategoryBills(userId, categoryId, token),
+    queryKey: ['adminCategoryBills', userId, categoryId, filters],
+    queryFn: () => fetchAdminCategoryBills(userId, categoryId, token, filters),
     enabled: !!userId && !!categoryId && !!token,
   })
 }
@@ -63,9 +64,9 @@ export function useRejectBill(userId: number, categoryId: number) {
   return useMutation<
     { success: boolean; message: string },
     AxiosError<ApiError>,
-    { billId: number; token: string }
+    { billId: number; token: string; reason_for_action: string }
   >({
-    mutationFn: ({ billId, token }) => rejectBill(billId, token),
+    mutationFn: ({ billId, token, reason_for_action }) => rejectBill(billId, token, reason_for_action),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['adminCategoryBills', userId, categoryId],

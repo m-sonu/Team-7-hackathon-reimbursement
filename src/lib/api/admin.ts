@@ -30,6 +30,8 @@ export type AdminCategoryWiseBillsFilters = {
   status?: string
   page?: number
   per_page?: number
+  start_date?: string
+  end_date?: string
 }
 
 export function fetchAdminCategoryWiseBills(
@@ -44,13 +46,20 @@ export function fetchAdminCategoryWiseBills(
   })
 }
 
+export type AdminCategoryBillsFilters = {
+  start_date?: string
+  end_date?: string
+}
+
 export function fetchAdminCategoryBills(
   userId: number,
   categoryId: number,
   token: string,
+  filters?: AdminCategoryBillsFilters,
 ) {
   return axios.get<AdminCategoryBillsResponse>({
     url: urls.adminCategoryBills(userId, categoryId),
+    params: filters,
     token,
   })
 }
@@ -63,10 +72,10 @@ export function verifyBill(billId: number, token: string, approveAmount: number)
   })
 }
 
-export function rejectBill(billId: number, token: string) {
+export function rejectBill(billId: number, token: string, reason_for_action: string) {
   return axios.post<{ success: boolean; message: string }>({
     url: urls.adminRejectBill(billId),
-    data: { status: 'rejected' },
+    data: { status: 'rejected', reason_for_action },
     token,
   })
 }

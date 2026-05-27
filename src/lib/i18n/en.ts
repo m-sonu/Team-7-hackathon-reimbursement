@@ -228,6 +228,7 @@ const en: Translations = {
     createSuccess: 'Category created successfully.',
     updateSuccess: 'Category updated successfully.',
     deleteSuccess: 'Category deleted successfully.',
+    colJPName: 'JP NAME',
   },
   auth: {
     sessionExpired: 'Session expired. Please log in again.',

@@ -11,6 +11,7 @@ export function fetchCategories(token: string) {
 
 export type CategoryPayload = {
   name: string
+  jp_name?: string | null
   monthly_limit?: number | null
   is_active?: boolean
 }

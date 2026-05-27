@@ -198,6 +198,7 @@ export type Translations = {
     subtitle: string
     newCategory: string
     colName: string
+    colJPName: string
     colMonthlyLimit: string
     colStatus: string
     colActions: string

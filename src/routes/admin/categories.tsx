@@ -42,19 +42,28 @@ export const Route = createFileRoute('/admin/categories')({
 
 type FormState = {
   name: string
+  jp_name: string
   monthly_limit: string
   is_active: boolean
 }
 
+type FormErrors = {
+  name?: string
+  jp_name?: string
+}
+
+const MAX_NAME = 255
+
 const emptyForm = (): FormState => ({
   name: '',
+  jp_name: '',
   monthly_limit: '',
   is_active: true,
 })
 
 function AdminCategoriesPage() {
   const context = Route.useRouteContext()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const token = context.token ?? ''
 
   const { data: res, isLoading } = useCategories(token)
@@ -67,6 +76,7 @@ function AdminCategoriesPage() {
   // null = no new-row form; 'new' = creating; number = editing category id
   const [editingId, setEditingId] = React.useState<'new' | number | null>(null)
   const [form, setForm] = React.useState<FormState>(emptyForm())
+  const [formErrors, setFormErrors] = React.useState<FormErrors>({})
 
   function openNew() {
     setForm(emptyForm())
@@ -76,6 +86,7 @@ function AdminCategoriesPage() {
   function openEdit(cat: Category) {
     setForm({
       name: cat.name,
+      jp_name: cat.jp_name ?? '',
       monthly_limit: cat.monthly_limit != null ? String(cat.monthly_limit) : '',
       is_active: cat.is_active ?? true,
     })
@@ -85,19 +96,39 @@ function AdminCategoriesPage() {
   function cancelEdit() {
     setEditingId(null)
     setForm(emptyForm())
+    setFormErrors({})
+  }
+
+  function validateForm(): FormErrors {
+    const errors: FormErrors = {}
+    if (!form.name.trim()) {
+      errors.name = 'Name is required'
+    } else if (form.name.trim().length > MAX_NAME) {
+      errors.name = `Max ${MAX_NAME} characters`
+    }
+    if (form.jp_name.trim().length > MAX_NAME) {
+      errors.jp_name = `Max ${MAX_NAME} characters`
+    }
+    return errors
   }
 
   function buildPayload() {
     const limitVal = form.monthly_limit.trim()
     return {
       name: form.name.trim(),
+      jp_name: form.jp_name.trim() || null,
       monthly_limit: limitVal !== '' ? Number(limitVal) : null,
       is_active: form.is_active,
     }
   }
 
   async function handleSave() {
-    if (!form.name.trim()) return
+    const errors = validateForm()
+    if (Object.keys(errors).length) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
 
     if (editingId === 'new') {
       await createMutation.mutateAsync(buildPayload(), {
@@ -167,6 +198,7 @@ function AdminCategoriesPage() {
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead>{t.adminCategories.colName}</TableHead>
+                <TableHead>{t.adminCategories.colJPName}</TableHead>
                 <TableHead>{t.adminCategories.colMonthlyLimit}</TableHead>
                 <TableHead>{t.adminCategories.colStatus}</TableHead>
                 <TableHead className="w-28">
@@ -182,6 +214,10 @@ function AdminCategoriesPage() {
                   onSave={handleSave}
                   onCancel={cancelEdit}
                   isSaving={isSaving}
+                  errors={formErrors}
+                  onClearError={(key) =>
+                    setFormErrors((prev) => ({ ...prev, [key]: undefined }))
+                  }
                   t={t.adminCategories}
                 />
               )}
@@ -189,7 +225,7 @@ function AdminCategoriesPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 4 }).map((__, j) => (
+                    {Array.from({ length: 5 }).map((__, j) => (
                       <TableCell key={j}>
                         <div className="h-4 animate-pulse rounded bg-gray-100" />
                       </TableCell>
@@ -199,7 +235,7 @@ function AdminCategoriesPage() {
               ) : categories.length === 0 && editingId !== 'new' ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="py-12 text-center text-sm text-muted-foreground"
                   >
                     {t.adminCategories.noCategories}
@@ -215,12 +251,23 @@ function AdminCategoriesPage() {
                       onSave={handleSave}
                       onCancel={cancelEdit}
                       isSaving={isSaving}
+                      errors={formErrors}
+                      onClearError={(key) =>
+                        setFormErrors((prev) => ({ ...prev, [key]: undefined }))
+                      }
                       t={t.adminCategories}
                     />
                   ) : (
                     <TableRow key={cat.id}>
                       <TableCell className="font-medium text-gray-900">
                         {cat.name}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {cat.jp_name ? (
+                          <span>{cat.jp_name}</span>
+                        ) : (
+                          <span className="italic text-gray-400">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {cat.monthly_limit != null ? (
@@ -279,6 +326,8 @@ type FormRowProps = {
   onSave: () => void
   onCancel: () => void
   isSaving: boolean
+  errors: FormErrors
+  onClearError: (key: keyof FormErrors) => void
   t: Translations['adminCategories']
 }
 
@@ -288,23 +337,48 @@ function FormRow({
   onSave,
   onCancel,
   isSaving,
+  errors,
+  onClearError,
   t,
 }: FormRowProps) {
   function set<T extends keyof FormState>(key: T, value: FormState[T]) {
     onChange((prev) => ({ ...prev, [key]: value }))
   }
 
+  const hasErrors = !!(errors.name || errors.jp_name)
+
   return (
-    <TableRow className="bg-indigo-50/40">
+    <TableRow className="bg-indigo-50/40 align-top">
       <TableCell>
         <Input
           autoFocus
           value={form.name}
-          onChange={(e) => set('name', e.target.value)}
+          onChange={(e) => {
+            set('name', e.target.value)
+            if (errors.name) onClearError('name')
+          }}
           placeholder={t.placeholderName}
-          className="h-8 text-sm"
+          className={`h-8 text-sm ${errors.name ? 'border-red-400' : ''}`}
           onKeyDown={(e) => e.key === 'Enter' && onSave()}
         />
+        {errors.name && (
+          <p className="mt-1 text-xs text-red-500">{errors.name}</p>
+        )}
+      </TableCell>
+      <TableCell>
+        <Input
+          value={form.jp_name}
+          onChange={(e) => {
+            set('jp_name', e.target.value)
+            if (errors.jp_name) onClearError('jp_name')
+          }}
+          placeholder="日本語名（任意）"
+          className={`h-8 text-sm ${errors.jp_name ? 'border-red-400' : ''}`}
+          onKeyDown={(e) => e.key === 'Enter' && onSave()}
+        />
+        {errors.jp_name && (
+          <p className="mt-1 text-xs text-red-500">{errors.jp_name}</p>
+        )}
       </TableCell>
       <TableCell>
         <Input
@@ -334,7 +408,7 @@ function FormRow({
         <div className="flex items-center gap-1">
           <button
             onClick={onSave}
-            disabled={isSaving || !form.name.trim()}
+            disabled={isSaving || hasErrors}
             className="rounded p-1 text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
             title={t.saveChanges}
           >

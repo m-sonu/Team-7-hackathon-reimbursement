@@ -1,14 +1,18 @@
 import { Badge } from '#/components/ui/badge'
-import { useUserBillDetails } from '#/hooks/queries/bills'
+import { Button } from '#/components/ui/button'
+import { useSubmitBatch, useUserBillDetails } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeft,
   CheckCircle2,
   Circle,
   DollarSign,
+  Loader2,
   Receipt,
 } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 export const Route = createFileRoute('/_user/bill/$billId')({
   component: BillDetailPage,
@@ -89,9 +93,41 @@ function BillDetailPage() {
   const { billId } = Route.useParams()
   const { t } = useI18n()
   const token = context.token ?? ''
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data, isLoading, isError } = useUserBillDetails(Number(billId), token)
   const batch = data?.data
+
+  const bills = batch?.data ?? []
+  const hasPendingBills = bills.some((b) => b.status === 'pending')
+  const totalRaw = bills.reduce((sum, b) => sum + b.amount_raw, 0)
+  const currency = bills[0]?.billUploadBatch?.currency ?? ''
+  const totalFormatted = currency
+    ? `${currency} ${totalRaw.toLocaleString()}`
+    : totalRaw.toLocaleString()
+
+  const { mutate: submit, isPending: isSubmitting } = useSubmitBatch()
+
+  const handleSubmit = () => {
+    if (!batch) return
+    submit(
+      { batchId: batch.id, token },
+      {
+        onSuccess: () => {
+          toast.success(t.reviewBatch.submitSuccess)
+          queryClient.invalidateQueries({ queryKey: ['userBillDetails', Number(billId)] })
+          queryClient.invalidateQueries({ queryKey: ['userBills'] })
+          queryClient.invalidateQueries({ queryKey: ['employeeDashboard'] })
+          navigate({ to: '/dashboard' })
+        },
+        onError: (error) => {
+          const msg = error.response?.data.message
+          toast.error(msg || 'Failed to submit for reimbursement.')
+        },
+      },
+    )
+  }
 
   const timelineLabels = {
     submitted: t.billDetail.stepSubmitted,
@@ -132,6 +168,7 @@ function BillDetailPage() {
   }
 
   return (
+    <div className="min-h-screen bg-gray-50 pb-24">
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <div className="mb-6">
         <Link
@@ -377,6 +414,28 @@ function BillDetailPage() {
           </div>
         </>
       )}
+    </div>
+
+    {!isLoading && !isError && batch && hasPendingBills && (
+      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              {t.reviewBatch.totalAmount}
+            </p>
+            <p className="text-xl font-bold text-gray-900">{totalFormatted}</p>
+          </div>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-6"
+          >
+            {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {t.reviewBatch.submitForReimbursement}
+          </Button>
+        </div>
+      </div>
+    )}
     </div>
   )
 }

@@ -88,7 +88,12 @@ function toDateString(d: Date) {
 
 function DashboardPage() {
   const context = Route.useRouteContext()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
+
+  // i18n uses 'ja' but the API locale key is 'jp'
+  const localeKey = lang === 'ja' ? 'jp' : 'en'
+  const resolveCategory = (cat: { en: string; jp: string }) =>
+    cat[localeKey] || cat.en
   const token = context.token ?? ''
   const userId = context.user?.id ?? 0
 
@@ -238,7 +243,7 @@ function DashboardPage() {
                     key={cat.category_id}
                     className="flex items-center justify-between text-sm"
                   >
-                    <span className="text-gray-600">{cat.category}</span>
+                    <span className="text-gray-600">{resolveCategory(cat.category)}</span>
                     <span className="font-medium text-gray-900">
                       {cat.approved_amount}
                     </span>
@@ -303,7 +308,7 @@ function DashboardPage() {
               <SelectItem value="all">{t.common.allCategories}</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={String(cat.id)}>
-                  {cat.name}
+                  {lang === 'ja' ? (cat.locale?.jp || cat.name) : cat.name}
                 </SelectItem>
               ))}
             </SelectContent>

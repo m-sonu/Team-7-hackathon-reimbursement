@@ -33,10 +33,8 @@ import { toast } from 'react-toastify'
 import { z } from 'zod'
 
 const searchSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().optional(),
-  totalSubmitted: z.string().optional(),
-  totalApproved: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 })
 
 export const Route = createFileRoute('/admin/users/$userId')({
@@ -108,8 +106,10 @@ function AdminUserDetailPage() {
     () => ({
       month: Number(month),
       ...(status !== 'all' && { status }),
+      ...(search.startDate && { start_date: search.startDate }),
+      ...(search.endDate && { end_date: search.endDate }),
     }),
-    [month, status],
+    [month, status, search.startDate, search.endDate],
   )
 
   const { data: billsRes, isLoading } = useAdminCategoryWiseBills(
@@ -155,10 +155,10 @@ function AdminUserDetailPage() {
       }
     }
     return {
-      displayTotalSubmitted: search.totalSubmitted ?? '—',
-      displayTotalApproved: search.totalApproved ?? '—',
+      displayTotalSubmitted: '—',
+      displayTotalApproved: '—',
     }
-  }, [bills, isLoading, status, search.totalSubmitted, search.totalApproved])
+  }, [bills, isLoading, status])
 
   const handleMarkReimbursed = () => {
     markReimbursed(
@@ -220,9 +220,8 @@ function AdminUserDetailPage() {
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {search.name ?? `Employee #${userId}`}
+                  {`Employee #${userId}`}
                 </h2>
-                <p className="text-sm text-gray-500">{search.email ?? ''}</p>
               </div>
 
               <div className="flex items-center gap-8">
@@ -333,16 +332,11 @@ function AdminUserDetailPage() {
                       </TableCell>
                       <TableCell>
                         <Link
-                          to="/admin/review/$batchId"
-                          params={{ batchId: String(bill.category_id) }}
+                          to="/admin/review/$userId/$batchId"
+                          params={{ userId: userId, batchId: String(bill.category_id) }}
                           search={{
-                            userId: userId,
-                            name: search.name,
-                            category: bill.category_name,
-                            empName: search.name,
-                            empEmail: search.email,
-                            empTotalSubmitted: search.totalSubmitted,
-                            empTotalApproved: search.totalApproved,
+                            startDate: search.startDate,
+                            endDate: search.endDate,
                           }}
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"
                         >

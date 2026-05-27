@@ -31,12 +31,19 @@ import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Filter, LayoutGrid, Users } from 'lucide-react'
 import * as React from 'react'
+import { z } from 'zod'
 
 function toDateString(d: Date) {
   return d.toISOString().split('T')[0]
 }
 
+const dashboardSearchSchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+})
+
 export const Route = createFileRoute('/admin/dashboard')({
+  validateSearch: dashboardSearchSchema,
   beforeLoad: async ({ context }) => {
     if (!context.token) {
       await onLogout()
@@ -53,6 +60,7 @@ function AdminDashboardPage() {
   const context = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useI18n()
+  const search = Route.useSearch()
 
   const token = context.token ?? ''
 
@@ -62,8 +70,8 @@ function AdminDashboardPage() {
   )
   const defaultEnd = toDateString(today)
 
-  const [startDate, setStartDate] = React.useState(defaultStart)
-  const [endDate, setEndDate] = React.useState(defaultEnd)
+  const startDate = search.startDate ?? defaultStart
+  const endDate = search.endDate ?? defaultEnd
   const [status, setStatus] = React.useState('all')
   const [page, setPage] = React.useState(1)
 
@@ -132,7 +140,7 @@ function AdminDashboardPage() {
                   value={startDate}
                   max={endDate}
                   onChange={(e) => {
-                    setStartDate(e.target.value)
+                    navigate({ search: (prev) => ({ ...prev, startDate: e.target.value }) })
                     resetPage()
                   }}
                   className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -146,7 +154,7 @@ function AdminDashboardPage() {
                   value={endDate}
                   min={startDate}
                   onChange={(e) => {
-                    setEndDate(e.target.value)
+                    navigate({ search: (prev) => ({ ...prev, endDate: e.target.value }) })
                     resetPage()
                   }}
                   className="h-8 rounded-md border border-input bg-transparent px-2 text-sm text-gray-700 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -226,10 +234,8 @@ function AdminDashboardPage() {
                             to: '/admin/users/$userId',
                             params: { userId: String(emp.id) },
                             search: {
-                              name: emp.name,
-                              email: emp.email,
-                              totalSubmitted: String(emp.total_amount),
-                              totalApproved: String(emp.approved_amount),
+                              startDate,
+                              endDate,
                             },
                           })
                         }
