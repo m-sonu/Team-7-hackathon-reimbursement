@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '#/components/ui/tooltip'
+import { TanukiLoader } from '#/components/tanuki'
 import { useCategories } from '#/hooks/queries/categories'
 import { useUserBills } from '#/hooks/queries/bills'
 import { useEmployeeDashboard } from '#/hooks/queries/user'
@@ -163,6 +164,8 @@ function DashboardPage() {
 
   const { data: categoriesRes } = useCategories(token)
 
+  const [loaderDone, setLoaderDone] = React.useState(false)
+  React.useEffect(() => { setLoaderDone(false) }, [filters])
 
   const bills = billsRes?.data ?? []
   const meta = billsRes?.meta
@@ -335,29 +338,22 @@ function DashboardPage() {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>{t.userDashboard.colDate}</TableHead>
-              <TableHead>{t.userDashboard.colTitle}</TableHead>
-              <TableHead>{t.common.category}</TableHead>
-              <TableHead>{t.userDashboard.colAmount}</TableHead>
-              <TableHead>{t.common.status}</TableHead>
-              <TableHead>{t.common.action}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isBillsLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <TableCell key={j}>
-                      <div className="h-4 animate-pulse rounded bg-gray-100" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : bills.length === 0 ? (
+        {(!loaderDone || isBillsLoading) ? (
+          <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t.userDashboard.colDate}</TableHead>
+                <TableHead>{t.userDashboard.colTitle}</TableHead>
+                <TableHead>{t.common.category}</TableHead>
+                <TableHead>{t.userDashboard.colAmount}</TableHead>
+                <TableHead>{t.common.status}</TableHead>
+                <TableHead>{t.common.action}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bills.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
@@ -400,8 +396,9 @@ function DashboardPage() {
                 </TableRow>
               ))
             )}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        )}
 
         {/* Pagination */}
         {meta && (

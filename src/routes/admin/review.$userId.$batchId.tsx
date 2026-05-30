@@ -11,10 +11,10 @@ import {
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
+import { TanukiLoader, useTanukiPopup } from '#/components/tanuki'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, FileImage } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'react-toastify'
 import { z } from 'zod'
 
 const searchSchema = z.object({
@@ -72,6 +72,8 @@ function AdminReviewPage() {
 
   const hasUnreviewedBills = !!(statusCounts['pending'] || statusCounts['under review'])
 
+  const { showSuccess, showError } = useTanukiPopup()
+  const [loaderDone, setLoaderDone] = useState(false)
   const [rejectReasons, setRejectReasons] = useState<Record<number, string>>({})
   const [rejectErrors, setRejectErrors] = useState<Record<number, boolean>>({})
 
@@ -79,8 +81,8 @@ function AdminReviewPage() {
     verifyMutation.mutate(
       { billId, token, approveAmount },
       {
-        onSuccess: () => toast.success(t.adminReview.reviewedSuccess),
-        onError: () => toast.error('Failed to mark as reviewed.'),
+        onSuccess: () => showSuccess(t.adminReview.reviewed, t.adminReview.reviewedSuccess),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -95,11 +97,11 @@ function AdminReviewPage() {
       { billId, token, reason_for_action: reason },
       {
         onSuccess: () => {
-          toast.success(t.adminReview.rejectSuccess)
+          showSuccess(t.adminReview.rejected, t.adminReview.rejectSuccess)
           setRejectReasons((prev) => ({ ...prev, [billId]: '' }))
           setRejectErrors((prev) => ({ ...prev, [billId]: false }))
         },
-        onError: () => toast.error('Failed to reject bill.'),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -108,8 +110,8 @@ function AdminReviewPage() {
     bulkMutation.mutate(
       { batchId: categoryId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onSuccess: () => showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -119,8 +121,8 @@ function AdminReviewPage() {
     reimburseByPivotMutation.mutate(
       { pivotId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onSuccess: () => showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -214,16 +216,13 @@ function AdminReviewPage() {
         </div>
 
         {/* Bills list */}
-        {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-56 animate-pulse rounded-xl bg-gray-100"
-              />
-            ))}
-          </div>
-        ) : bills.length === 0 ? (
+        {(!loaderDone || isLoading) && (
+          <TanukiLoader
+            message={t.reviewBatch.loadingBills}
+            onComplete={() => setLoaderDone(true)}
+          />
+        )}
+        {loaderDone && !isLoading && (bills.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
             {t.adminReview.noExpenses}
           </p>
@@ -392,7 +391,7 @@ function AdminReviewPage() {
               </div>
             ))}
           </div>
-        )}
+        ))}
       </div>
     </div>
   )

@@ -23,6 +23,7 @@ export type Translations = {
     viewDetails: string
     backToDashboard: string
     noExpenses: string
+    loading: string
     months: string[]
     statusLabels: {
       submitted: string

@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
+import { TanukiLoader } from '#/components/tanuki'
 import { useEmployeeBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
@@ -102,6 +103,9 @@ function AdminDashboardPage() {
   const employees = res?.data?.data ?? []
   const meta = res?.meta
 
+  const [loaderDone, setLoaderDone] = React.useState(false)
+  React.useEffect(() => { setLoaderDone(false) }, [filters])
+
   function billsCountBadge(count: number) {
     return <Badge variant="muted">{count}</Badge>
   }
@@ -178,6 +182,9 @@ function AdminDashboardPage() {
             </div>
           </div>
 
+          {(!loaderDone || isLoading) ? (
+            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -190,17 +197,7 @@ function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : employees.length === 0 ? (
+              {employees.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -245,6 +242,7 @@ function AdminDashboardPage() {
               )}
             </TableBody>
           </Table>
+          )}
 
           {meta && (
             <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">

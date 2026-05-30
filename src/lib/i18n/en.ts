@@ -19,6 +19,7 @@ const en: Translations = {
     viewDetails: 'View Details',
     backToDashboard: 'Back to Dashboard',
     noExpenses: 'No expenses found for the selected filters.',
+    loading: 'Loading...',
     months: [
       'January',
       'February',

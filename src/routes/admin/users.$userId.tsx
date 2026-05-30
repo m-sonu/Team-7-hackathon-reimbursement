@@ -29,7 +29,7 @@ import {
 } from '@tanstack/react-router'
 import { ArrowLeft, Eye } from 'lucide-react'
 import * as React from 'react'
-import { useTanukiPopup } from '#/components/tanuki'
+import { TanukiLoader, useTanukiPopup } from '#/components/tanuki'
 import { z } from 'zod'
 
 const searchSchema = z.object({
@@ -124,6 +124,8 @@ function AdminUserDetailPage() {
 
   const { mutate: markReimbursed, isPending: isReimbursing } = useUserBulkReimburse(Number(userId))
   const { showSuccess, showError } = useTanukiPopup()
+  const [loaderDone, setLoaderDone] = React.useState(false)
+  React.useEffect(() => { setLoaderDone(false) }, [filters])
 
   const isFullyReimbursed = React.useMemo(
     () => bills.length > 0 && bills.every((bill) => bill.status === 'reimbursed'),
@@ -270,6 +272,9 @@ function AdminUserDetailPage() {
             </h3>
           </div>
 
+          {(!loaderDone || isLoading) ? (
+            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -283,17 +288,7 @@ function AdminUserDetailPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : bills.length === 0 ? (
+              {bills.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
@@ -353,6 +348,7 @@ function AdminUserDetailPage() {
               )}
             </TableBody>
           </Table>
+          )}
         </Card>
       </div>
     </div>

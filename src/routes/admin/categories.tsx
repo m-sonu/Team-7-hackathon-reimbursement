@@ -25,7 +25,7 @@ import { ROLES } from '#/lib/utils/constant'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { LayoutGrid, Pencil, Plus, Trash2, X, Check } from 'lucide-react'
 import * as React from 'react'
-import { useTanukiPopup } from '#/components/tanuki'
+import { TanukiLoader, useTanukiPopup } from '#/components/tanuki'
 
 export const Route = createFileRoute('/admin/categories')({
   beforeLoad: async ({ context }) => {
@@ -73,6 +73,7 @@ function AdminCategoriesPage() {
   const updateMutation = useUpdateCategory(token)
   const deleteMutation = useDeleteCategory(token)
   const { showSuccess, showError } = useTanukiPopup()
+  const [loaderDone, setLoaderDone] = React.useState(false)
 
   // null = no new-row form; 'new' = creating; number = editing category id
   const [editingId, setEditingId] = React.useState<'new' | number | null>(null)
@@ -195,6 +196,9 @@ function AdminCategoriesPage() {
             {t.adminCategories.title}
           </div>
 
+          {(!loaderDone || isLoading) ? (
+            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -223,17 +227,7 @@ function AdminCategoriesPage() {
                 />
               )}
 
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : categories.length === 0 && editingId !== 'new' ? (
+              {categories.length === 0 && editingId !== 'new' ? (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -315,6 +309,7 @@ function AdminCategoriesPage() {
               )}
             </TableBody>
           </Table>
+          )}
         </Card>
       </div>
     </div>
