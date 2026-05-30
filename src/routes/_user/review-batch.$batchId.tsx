@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
+  Circle,
   DollarSign,
   Loader2,
   Pencil,
@@ -88,6 +89,74 @@ function ProcessingBanner({
 }
 
 // ---------------------------------------------------------------------------
+// Status timeline
+// ---------------------------------------------------------------------------
+
+function getStepDone(
+  status: string,
+  step: 'submitted' | 'underReview' | 'reviewed' | 'reimbursed',
+): boolean {
+  const s = status.toLowerCase()
+  switch (step) {
+    case 'submitted':
+      return true
+    case 'underReview':
+      return ['under review', 'verified', 'rejected', 'reimbursed'].includes(s)
+    case 'reviewed':
+      return ['verified', 'rejected', 'reimbursed'].includes(s)
+    case 'reimbursed':
+      return s === 'reimbursed'
+  }
+}
+
+function StatusTimeline({
+  status,
+  labels,
+}: {
+  status: string
+  labels: { submitted: string; underReview: string; reviewed: string; reimbursed: string }
+}) {
+  const isRejected = status.toLowerCase() === 'rejected'
+  const steps = [
+    { key: 'submitted' as const, label: labels.submitted },
+    { key: 'underReview' as const, label: labels.underReview },
+    { key: 'reviewed' as const, label: labels.reviewed },
+    { key: 'reimbursed' as const, label: labels.reimbursed },
+  ]
+
+  return (
+    <ul className="space-y-2">
+      {steps.map((step) => {
+        const done = getStepDone(status, step.key)
+        const isLastRelevant = isRejected && step.key === 'reviewed'
+        return (
+          <li key={step.key} className="flex items-center gap-2 text-sm">
+            {done ? (
+              <CheckCircle2
+                className={`size-4 shrink-0 ${isLastRelevant ? 'text-red-500' : 'text-emerald-500'}`}
+              />
+            ) : (
+              <Circle className="size-4 shrink-0 text-gray-300" />
+            )}
+            <span
+              className={
+                done
+                  ? isLastRelevant
+                    ? 'text-red-600 font-medium'
+                    : 'text-gray-900 font-medium'
+                  : 'text-gray-400'
+              }
+            >
+              {step.label}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // BillCard
 // ---------------------------------------------------------------------------
 
@@ -103,6 +172,11 @@ type BillCardLabels = {
   cancelEdit: string
   removeBill: string
   fixBill: string
+  statusTimeline: string
+  stepSubmitted: string
+  stepUnderReview: string
+  stepReviewed: string
+  stepReimbursed: string
 }
 
 function BillCard({
@@ -329,6 +403,23 @@ function BillCard({
                 <p className="text-sm font-medium text-gray-900">{bill.vat_no ?? '—'}</p>
               </div>
 
+              {bill.status === 'under review' && (
+                <div className="border-t border-gray-100 pt-3 mt-1">
+                  <p className="mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    {labels.statusTimeline}
+                  </p>
+                  <StatusTimeline
+                    status={bill.status}
+                    labels={{
+                      submitted: labels.stepSubmitted,
+                      underReview: labels.stepUnderReview,
+                      reviewed: labels.stepReviewed,
+                      reimbursed: labels.stepReimbursed,
+                    }}
+                  />
+                </div>
+              )}
+
               {!isValid && bill.validation_error && (
                 <ValidationMessage error={bill.validation_error} label={labels.validationError} />
               )}
@@ -401,6 +492,11 @@ function ReviewBatchPage() {
       cancelEdit: t.reviewBatch.cancelEdit,
       removeBill: t.reviewBatch.removeBill,
       fixBill: t.reviewBatch.fixBill,
+      statusTimeline: t.billDetail.statusTimeline,
+      stepSubmitted: t.billDetail.stepSubmitted,
+      stepUnderReview: t.billDetail.stepUnderReview,
+      stepReviewed: t.billDetail.stepReviewed,
+      stepReimbursed: t.billDetail.stepReimbursed,
     }),
     [t],
   )
@@ -452,6 +548,8 @@ function ReviewBatchPage() {
   const validBills = preview?.valid_bills ?? []
   const invalidBills = preview?.invalid_bills ?? []
   const currency = preview?.currency ?? ''
+  const allBillsUnderReview =
+    validBills.length > 0 && validBills.every((b) => b.status === 'under review')
 
   const fixedBillNos = React.useMemo(
     () =>
@@ -619,7 +717,7 @@ function ReviewBatchPage() {
       </div>
 
       {/* Fixed footer */}
-      {loaderDone && !isLoading && aiStatus === 'success' && preview && (
+      {loaderDone && !isLoading && aiStatus === 'success' && preview && !allBillsUnderReview && (
         <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>
