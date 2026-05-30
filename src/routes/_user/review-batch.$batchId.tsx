@@ -1,9 +1,12 @@
 import { Button } from '#/components/ui/button'
+import { TanukiLoader, TanukiScanner, TanukiStepHead } from '#/components/tanuki'
+import type { StepEmotion } from '#/components/tanuki'
 import { useBatchPreview, useDeleteBill, useSubmitBatch, useUpdateBill } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import type { BatchPreviewBill } from '#/lib/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { z } from 'zod'
 import {
   AlertTriangle,
   ArrowLeft,
@@ -16,9 +19,10 @@ import {
   X,
 } from 'lucide-react'
 import * as React from 'react'
-import { toast } from 'react-toastify'
+import { useTanukiPopup } from '#/components/tanuki'
 
 export const Route = createFileRoute('/_user/review-batch/$batchId')({
+  validateSearch: z.object({ skipLoader: z.boolean().optional() }),
   component: ReviewBatchPage,
 })
 
@@ -29,12 +33,12 @@ export const Route = createFileRoute('/_user/review-batch/$batchId')({
 function ProcessingBanner({
   labels,
 }: {
-  labels: { title: string; subtitle: string; stepUploaded: string; stepScanning: string; stepReview: string }
+  labels: { stepUploaded: string; stepScanning: string; stepReview: string }
 }) {
-  const steps = [
-    { label: labels.stepUploaded, state: 'done' as const },
-    { label: labels.stepScanning, state: 'active' as const },
-    { label: labels.stepReview, state: 'pending' as const },
+  const steps: Array<{ label: string; state: 'done' | 'active' | 'pending'; emotion: StepEmotion }> = [
+    { label: labels.stepUploaded, state: 'done',    emotion: 'proud'   },
+    { label: labels.stepScanning, state: 'active',  emotion: 'focused' },
+    { label: labels.stepReview,   state: 'pending', emotion: 'sleepy'  },
   ]
 
   return (
@@ -49,21 +53,19 @@ function ProcessingBanner({
             )}
             <div className="flex flex-col items-center">
               <div
-                className={`size-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                className={`size-10 rounded-full flex items-center justify-center border-2 overflow-hidden transition-all ${
                   step.state === 'done'
-                    ? 'bg-emerald-100 border-emerald-400'
+                    ? 'border-emerald-400'
                     : step.state === 'active'
-                      ? 'bg-indigo-100 border-indigo-400'
-                      : 'bg-gray-100 border-gray-200'
+                      ? 'border-purple-600'
+                      : 'border-gray-200'
                 }`}
               >
-                {step.state === 'done' ? (
-                  <CheckCircle2 className="size-5 text-emerald-500" />
-                ) : step.state === 'active' ? (
-                  <Loader2 className="size-5 text-indigo-500 animate-spin" />
-                ) : (
-                  <span className="text-xs font-bold text-gray-400">3</span>
-                )}
+                <TanukiStepHead
+                  emotion={step.emotion}
+                  state={step.state === 'done' ? 'completed' : step.state === 'active' ? 'active' : 'pending'}
+                  size={40}
+                />
               </div>
               <span
                 className={`mt-1.5 text-xs font-medium ${
@@ -80,8 +82,7 @@ function ProcessingBanner({
           </React.Fragment>
         ))}
       </div>
-      <p className="text-base font-semibold text-gray-900">{labels.title}</p>
-      <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">{labels.subtitle}</p>
+      <TanukiScanner isScanning={true} />
     </div>
   )
 }
@@ -373,6 +374,10 @@ function ReviewBatchPage() {
   const navigate = useNavigate()
   const token = context.token ?? ''
 
+  const { showSuccess, showError } = useTanukiPopup()
+
+  const { skipLoader } = Route.useSearch()
+  const [loaderDone, setLoaderDone] = React.useState(!!skipLoader)
   const { data, isLoading } = useBatchPreview(Number(batchId), token)
   const { mutate: submit, isPending: isSubmitting } = useSubmitBatch()
   const { mutate: updateBillMutate, isPending: isUpdating, variables: updateVars } = useUpdateBill()
@@ -405,10 +410,10 @@ function ReviewBatchPage() {
       { billId, data, token },
       {
         onSuccess: () => {
-          toast.success(t.reviewBatch.updateSuccess)
+          showSuccess('更新完了！', '変更が保存されました')
           queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
         },
-        onError: () => toast.error(t.reviewBatch.updateError),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }
@@ -418,10 +423,10 @@ function ReviewBatchPage() {
       { billId, token },
       {
         onSuccess: () => {
-          toast.success(t.reviewBatch.removeSuccess)
+          showSuccess('削除完了', '請求書が削除されました')
           queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
         },
-        onError: () => toast.error(t.reviewBatch.removeError),
+        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
       },
     )
   }
@@ -431,14 +436,14 @@ function ReviewBatchPage() {
       { batchId: Number(batchId), token },
       {
         onSuccess: () => {
-          toast.success(t.reviewBatch.submitSuccess)
+          showSuccess('申請完了！🎉', '請求書が送信されました')
           queryClient.invalidateQueries({ queryKey: ['employeeDashboard'] })
           queryClient.invalidateQueries({ queryKey: ['userBills'] })
           navigate({ to: '/dashboard' })
         },
         onError: (error) => {
           const msg = error.response?.data.message || ''
-          if (msg) toast.error(msg)
+          showError('エラーが発生しました', msg || 'もう一度お試しください')
         },
       },
     )
@@ -515,48 +520,41 @@ function ReviewBatchPage() {
           {t.reviewBatch.monthNote}
         </p>
 
-        {/* Loading skeleton */}
-        {isLoading && (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 flex gap-4">
-                <div className="h-44 w-52 shrink-0 animate-pulse rounded-lg bg-gray-100" />
-                <div className="flex-1 space-y-3 pt-1">
-                  {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-4 animate-pulse rounded bg-gray-100" />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* AI processing banner */}
-        {!isLoading && isProcessing && (
-          <ProcessingBanner
-            labels={{
-              title: t.reviewBatch.processingTitle,
-              subtitle: t.reviewBatch.processingSubtitle,
-              stepUploaded: t.reviewBatch.stepUploaded,
-              stepScanning: t.reviewBatch.stepScanning,
-              stepReview: t.reviewBatch.stepReview,
-            }}
+        {(!loaderDone || isLoading) && (
+          <TanukiLoader
+            message="請求書を読み込み中..."
+            onComplete={() => setLoaderDone(true)}
           />
         )}
 
-        {/* AI processing failed banner */}
-        {!isLoading && isFailed && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 py-14 text-center">
-            <AlertTriangle className="mb-4 size-10 text-red-500" />
-            <p className="text-base font-semibold text-gray-900">Processing Failed</p>
-            <p className="mt-1 text-sm text-gray-500 max-w-xs">
-              There was an error processing the bills in this batch. Please try uploading again.
-            </p>
-          </div>
+        {loaderDone && !isLoading && (
+          <>
+            {/* AI processing banner */}
+            {isProcessing && (
+              <ProcessingBanner
+                labels={{
+                  stepUploaded: t.reviewBatch.stepUploaded,
+                  stepScanning: t.reviewBatch.stepScanning,
+                  stepReview: t.reviewBatch.stepReview,
+                }}
+              />
+            )}
+
+            {/* AI processing failed banner */}
+            {isFailed && (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 py-14 text-center">
+                <AlertTriangle className="mb-4 size-10 text-red-500" />
+                <p className="text-base font-semibold text-gray-900">Processing Failed</p>
+                <p className="mt-1 text-sm text-gray-500 max-w-xs">
+                  There was an error processing the bills in this batch. Please try uploading again.
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Bills list */}
-        {!isLoading && aiStatus === 'success' && preview && (
+        {loaderDone && !isLoading && aiStatus === 'success' && preview && (
           <div className="space-y-6">
             {/* Valid bills */}
             {validBills.length > 0 && (
@@ -621,7 +619,7 @@ function ReviewBatchPage() {
       </div>
 
       {/* Fixed footer */}
-      {!isLoading && aiStatus === 'success' && preview && (
+      {loaderDone && !isLoading && aiStatus === 'success' && preview && (
         <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>

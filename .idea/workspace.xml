@@ -5,8 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="daa9fddd-b134-4f5a-affe-baa4a92e3664" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/public/tanuki webm/ai process completed.webm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/tanuki webm/ai_processing.webm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/tanuki webm/loader.webm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/tanuki webm/uploaded.webm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/CloudBubbleSVG.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/HankoStamp.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiLoader.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiMascot.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiPopupContext.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiScanner.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiStepHead.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/TanukiToast.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/animations.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/tanuki/useTanuki.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/urls.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/urls.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/utils/axios.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/utils/axios.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/__root.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/__root.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/_user.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/_user.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/_user/bill.$billId.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/_user/bill.$billId.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/_user/review-batch.$batchId.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/_user/review-batch.$batchId.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/_user/upload-expense.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/_user/upload-expense.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/admin/categories.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/admin/categories.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/admin/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/admin/dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/admin/review.$batchId.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/admin/review.$batchId.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/admin/users.$userId.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/admin/users.$userId.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,23 +59,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/manishmaharjan/Sites/Harateko-Tanuki/frontend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/manishmaharjan/Sites/Harateko-Tanuki/frontend/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "Merging merge-translation-and-mascot",
+    "last_opened_file_path": "/Users/manishmaharjan/Sites/Harateko-Tanuki/frontend/public/tanuki webm",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "bun",
+    "ts.external.directory.path": "/Users/manishmaharjan/Sites/Harateko-Tanuki/frontend/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public/tanuki webm" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -72,6 +100,7 @@
       <workItem from="1779081901443" duration="1230000" />
       <workItem from="1779276654071" duration="9741000" />
       <workItem from="1779382244057" duration="2249000" />
+      <workItem from="1780129069760" duration="629000" />
     </task>
     <servers />
   </component>

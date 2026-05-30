@@ -1,8 +1,7 @@
 import axios from 'axios'
 import type { AxiosError, AxiosInstance } from 'axios'
-import { toast } from 'react-toastify'
+import { tanukiShowError } from '#/components/tanuki/TanukiPopupContext'
 import { onLogout } from '#/server/cookies'
-import { getT } from '#/lib/i18n'
 import { cleanData } from '.'
 import { env } from './env'
 
@@ -30,7 +29,7 @@ axiosInstance.interceptors.response.use(
   async (error: AxiosError) => {
     const status = error.response?.status
     if (typeof window !== 'undefined' && (status === 401 || status === 403)) {
-      toast.error(getT().auth.sessionExpired)
+      tanukiShowError('セッション期限切れ', 'もう一度ログインしてください')
       await onLogout()
       window.location.href = '/'
       return new Promise(() => {})

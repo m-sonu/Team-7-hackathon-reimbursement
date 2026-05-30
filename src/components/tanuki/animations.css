@@ -1,0 +1,235 @@
+/* Tanuki mascot keyframe animations */
+
+@keyframes tanuki-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes tanuki-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(1.04); }
+}
+
+@keyframes tanuki-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.08); }
+}
+
+@keyframes tanuki-arms-up {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-30deg); }
+}
+
+@keyframes tanuki-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-3px); }
+  40%      { transform: translateX(3px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(3px); }
+}
+
+@keyframes tanuki-zzz {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(8px, -14px) scale(1); }
+}
+
+@keyframes tanuki-zzz2 {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(11px, -20px) scale(0.9); }
+}
+
+@keyframes tanuki-stamp-arm {
+  0%        { transform: rotate(0deg) translateY(0); }
+  40%       { transform: rotate(-45deg) translateY(-6px); }
+  60%       { transform: rotate(-45deg) translateY(-6px); }
+  75%       { transform: rotate(5deg) translateY(4px); }
+  85%       { transform: rotate(5deg) translateY(4px); }
+  100%      { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes tanuki-screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20%      { transform: translate(-2px, 1px); }
+  40%      { transform: translate(2px, -1px); }
+  60%      { transform: translate(-1px, 2px); }
+  80%      { transform: translate(1px, -2px); }
+}
+
+@keyframes tanuki-ink-splat {
+  0%   { opacity: 0; transform: scale(0); }
+  40%  { opacity: 1; transform: scale(1.2); }
+  70%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8); }
+}
+
+@keyframes tanuki-slide-in {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes tanuki-slide-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(120%); opacity: 0; }
+}
+
+@keyframes tanuki-bow {
+  0%, 100% { transform: rotate(0deg); transform-origin: bottom center; }
+  50%      { transform: rotate(12deg); transform-origin: bottom center; }
+}
+
+@keyframes tanuki-sweat {
+  0%   { opacity: 0; transform: translateY(-2px); }
+  50%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(6px); }
+}
+
+@keyframes tanuki-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-6deg); }
+  75%      { transform: rotate(6deg); }
+}
+
+@keyframes tanuki-sticker-slap {
+  0%   { transform: scale(0)    rotate(-15deg); opacity: 0; }
+  40%  { transform: scale(1.15) rotate(3deg);   opacity: 1; }
+  70%  { transform: scale(0.95) rotate(-1deg);  opacity: 1; }
+  100% { transform: scale(1)    rotate(0deg);   opacity: 1; }
+}
+
+@keyframes tanuki-sticker-peel {
+  0%   { transform: scale(1)   rotate(0deg);  opacity: 1; }
+  100% { transform: scale(0.2) rotate(20deg); opacity: 0; }
+}
+
+@keyframes tanuki-excited-bounce {
+  0%, 100% { transform: translateY(0)     scaleY(1)    scaleX(1); }
+  30%       { transform: translateY(-16px) scaleY(1.1)  scaleX(0.9); }
+  60%       { transform: translateY(0)     scaleY(0.88) scaleX(1.12); }
+  80%       { transform: translateY(-7px)  scaleY(1.05) scaleX(0.95); }
+}
+
+@keyframes tanuki-zzz3 {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.35); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(14px, -26px) scale(1.1); }
+}
+
+@keyframes tanuki-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes tanuki-overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes tanuki-sparkle {
+  0%   { opacity: 0;   transform: translateY(0)    scale(0.5); }
+  30%  { opacity: 1; }
+  100% { opacity: 0;   transform: translateY(-22px) scale(1.1); }
+}
+
+/* Applied classes */
+.tanuki-bounce        { animation: tanuki-bounce 0.7s ease-in-out infinite; }
+.tanuki-breathe       { animation: tanuki-breathe 2.5s ease-in-out infinite; transform-origin: center bottom; }
+.tanuki-blink         { animation: tanuki-blink 4s ease-in-out infinite; transform-origin: center; }
+.tanuki-arms-up       { animation: tanuki-arms-up 0.7s ease-in-out infinite; transform-origin: top center; }
+.tanuki-shake         { animation: tanuki-shake 0.5s ease-in-out infinite; }
+.tanuki-zzz           { animation: tanuki-zzz 2.4s ease-in-out infinite; }
+.tanuki-zzz2          { animation: tanuki-zzz2 2.4s ease-in-out 1.2s infinite; }
+.tanuki-stamp-arm     { animation: tanuki-stamp-arm 1.4s ease-in-out infinite; transform-origin: top left; }
+.tanuki-screen-shake  { animation: tanuki-screen-shake 0.2s ease-in-out; }
+.tanuki-slide-in      { animation: tanuki-slide-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.tanuki-slide-out     { animation: tanuki-slide-out 0.35s ease-in forwards; }
+.tanuki-bow           { animation: tanuki-bow 0.6s ease-in-out; }
+.tanuki-ink-splat     { animation: tanuki-ink-splat 0.6s ease-out forwards; }
+.tanuki-sweat         { animation: tanuki-sweat 1.8s ease-in-out infinite; }
+.tanuki-sway          { animation: tanuki-sway 2.2s ease-in-out infinite; transform-origin: center bottom; }
+.tanuki-excited-bounce { animation: tanuki-excited-bounce 0.7s ease-in-out infinite; transform-origin: center bottom; }
+.tanuki-sticker-slap  { animation: tanuki-sticker-slap 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; transform-origin: center; }
+.tanuki-sticker-peel  { animation: tanuki-sticker-peel 0.2s ease-in forwards; transform-origin: center; }
+.tanuki-zzz3          { animation: tanuki-zzz3 2.4s ease-in-out 2.4s infinite; }
+.tanuki-overlay-in    { animation: tanuki-overlay-in 0.25s ease-out forwards; }
+.tanuki-overlay-out   { animation: tanuki-overlay-out 0.2s ease-in forwards; }
+.tanuki-sparkle       { animation: tanuki-sparkle 1.8s ease-out infinite; }
+
+/* ── TanukiScanner phase animations ───────────────────────────────────────── */
+
+@keyframes float-receipt {
+  0%   { transform: translateY(0)     rotate(-5deg); }
+  50%  { transform: translateY(-12px) rotate(3deg); }
+  100% { transform: translateY(0)     rotate(-5deg); }
+}
+
+@keyframes rise-z {
+  0%   { opacity: 1; transform: translateY(0)     scale(0.8); }
+  100% { opacity: 0; transform: translateY(-44px) scale(1.2); }
+}
+
+@keyframes scan-eyes {
+  0%, 100% { transform: translateX(-3px); }
+  50%      { transform: translateX(3px); }
+}
+
+@keyframes yen-burst {
+  0%   { opacity: 0; transform: translate(0,0)                               scale(0); }
+  30%  { opacity: 1; transform: translate(var(--tx), var(--ty))              scale(1); }
+  100% { opacity: 0; transform: translate(calc(var(--tx)*2), calc(var(--ty)*2)) scale(0.5); }
+}
+
+@keyframes scanner-complete {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18) rotate(4deg); }
+  70%  { transform: scale(0.92) rotate(-2deg); }
+  100% { transform: scale(0) rotate(0deg); opacity: 0; }
+}
+
+.float-receipt-1 { animation: float-receipt 3s ease-in-out 0s   infinite; }
+.float-receipt-2 { animation: float-receipt 3s ease-in-out 0.4s infinite; }
+.float-receipt-3 { animation: float-receipt 3s ease-in-out 0.8s infinite; }
+.rise-z-1 { animation: rise-z 1.5s ease-out 0s   infinite; }
+.rise-z-2 { animation: rise-z 1.5s ease-out 0.5s infinite; }
+.rise-z-3 { animation: rise-z 1.5s ease-out 1s   infinite; }
+.scan-eyes-anim { animation: scan-eyes 1.4s ease-in-out infinite; }
+.scanner-complete { animation: scanner-complete 0.5s ease-in forwards; }
+
+/* Phase visibility toggling */
+.tanuki-scanner-searching .phase-sleeping,
+.tanuki-scanner-searching .phase-excited  { display: none; }
+.tanuki-scanner-sleeping  .phase-searching,
+.tanuki-scanner-sleeping  .phase-excited  { display: none; }
+.tanuki-scanner-excited   .phase-searching,
+.tanuki-scanner-excited   .phase-sleeping { display: none; }
+
+/* ── TanukiStepHead animations ────────────────────────────────────────────── */
+
+@keyframes sweat-pulse {
+  0%, 100% { opacity: 0.8; transform: translateY(0); }
+  50%       { opacity: 0.4; transform: translateY(2px); }
+}
+
+@keyframes float-z {
+  0%   { opacity: 0.8; transform: translateY(0); }
+  100% { opacity: 0;   transform: translateY(-12px); }
+}
+
+.step-sweat-pulse { animation: sweat-pulse 1.5s ease-in-out infinite; }
+.step-sleepy-z    { animation: float-z 2s ease-in-out infinite; }
+
+/* ── Cloud bubble popup ──────────────────────────────────────────────────── */
+
+@keyframes cloud-pop-in {
+  0%   { transform: scale(0.2) translateY(30px); opacity: 0; }
+  100% { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+@keyframes cloud-pop-out {
+  0%   { transform: scale(1)   translateY(0); opacity: 1; }
+  100% { transform: scale(0.1) translateY(0); opacity: 0; }
+}
+
+.tanuki-sticker-entry { animation: cloud-pop-in  0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform-origin: center; }
+.tanuki-sticker-exit  { animation: cloud-pop-out 0.2s ease-in forwards;                            transform-origin: center; }

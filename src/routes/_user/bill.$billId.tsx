@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
+import { HankoStamp, TanukiLoader, TanukiMascot } from '#/components/tanuki'
 import { useSubmitBatch, useUserBillDetails } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import { useQueryClient } from '@tanstack/react-query'
@@ -98,6 +100,7 @@ function BillDetailPage() {
 
   const { data, isLoading, isError } = useUserBillDetails(Number(billId), token)
   const batch = data?.data
+  const [loaderDone, setLoaderDone] = useState(false)
 
   const bills = batch?.data ?? []
   const hasPendingBills = bills.some((b) => b.status === 'pending')
@@ -180,38 +183,21 @@ function BillDetailPage() {
         </Link>
       </div>
 
-      {isLoading && (
-        <div className="space-y-4">
-          <div className="h-8 w-64 animate-pulse rounded bg-gray-100" />
-          <div className="h-4 w-32 animate-pulse rounded bg-gray-100" />
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-gray-200 bg-white p-5"
-            >
-              <div className="flex gap-5">
-                <div className="h-48 w-52 animate-pulse rounded-lg bg-gray-100 shrink-0" />
-                <div className="flex-1 space-y-3">
-                  {[1, 2, 3, 4].map((j) => (
-                    <div
-                      key={j}
-                      className="h-4 animate-pulse rounded bg-gray-100"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {(!loaderDone || isLoading) && (
+        <TanukiLoader
+          message="請求書を読み込み中..."
+          onComplete={() => setLoaderDone(true)}
+        />
       )}
 
-      {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {loaderDone && !isLoading && isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-3">
+          <TanukiMascot mood="embarrassed" size="sm" />
           {t.billDetail.loadingError}
         </div>
       )}
 
-      {!isLoading && !isError && batch && (
+      {loaderDone && !isLoading && !isError && batch && (
         <>
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -398,12 +384,12 @@ function BillDetailPage() {
                             status={bill.status}
                             labels={timelineLabels}
                           />
-                          <Badge
-                            variant={statusConfig.variant}
-                            className="ml-auto shrink-0"
-                          >
-                            {statusConfig.label}
-                          </Badge>
+                          <div className="ml-auto shrink-0 flex flex-col items-center gap-1">
+                            <Badge variant={statusConfig.variant}>
+                              {statusConfig.label}
+                            </Badge>
+                            <HankoStamp status={bill.status} />
+                          </div>
                         </div>
                       </div>
                     </div>

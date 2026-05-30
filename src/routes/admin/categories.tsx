@@ -25,7 +25,7 @@ import { ROLES } from '#/lib/utils/constant'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { LayoutGrid, Pencil, Plus, Trash2, X, Check } from 'lucide-react'
 import * as React from 'react'
-import { toast } from 'react-toastify'
+import { useTanukiPopup } from '#/components/tanuki'
 
 export const Route = createFileRoute('/admin/categories')({
   beforeLoad: async ({ context }) => {
@@ -72,6 +72,7 @@ function AdminCategoriesPage() {
   const createMutation = useCreateCategory(token)
   const updateMutation = useUpdateCategory(token)
   const deleteMutation = useDeleteCategory(token)
+  const { showSuccess, showError } = useTanukiPopup()
 
   // null = no new-row form; 'new' = creating; number = editing category id
   const [editingId, setEditingId] = React.useState<'new' | number | null>(null)
@@ -133,11 +134,11 @@ function AdminCategoriesPage() {
     if (editingId === 'new') {
       await createMutation.mutateAsync(buildPayload(), {
         onSuccess: () => {
-          toast.success(t.adminCategories.createSuccess)
+          showSuccess('完了！', '操作が正常に完了しました')
           cancelEdit()
         },
         onError: (err) => {
-          toast.error(err.response?.data?.message ?? err.message)
+          showError('エラーが発生しました', err.response?.data?.message ?? err.message)
         },
       })
     } else if (typeof editingId === 'number') {
@@ -145,11 +146,11 @@ function AdminCategoriesPage() {
         { id: editingId, ...buildPayload() },
         {
           onSuccess: () => {
-            toast.success(t.adminCategories.updateSuccess)
+            showSuccess('更新完了！', '変更が保存されました')
             cancelEdit()
           },
           onError: (err) => {
-            toast.error(err.response?.data?.message ?? err.message)
+            showError('エラーが発生しました', err.response?.data?.message ?? err.message)
           },
         },
       )
@@ -159,8 +160,8 @@ function AdminCategoriesPage() {
   async function handleDelete(id: number) {
     if (!window.confirm(t.adminCategories.confirmDelete)) return
     await deleteMutation.mutateAsync(id, {
-      onSuccess: () => toast.success(t.adminCategories.deleteSuccess),
-      onError: (err) => toast.error(err.response?.data?.message ?? err.message),
+      onSuccess: () => showSuccess('削除完了', '操作が正常に完了しました'),
+      onError: (err) => showError('エラーが発生しました', err.response?.data?.message ?? err.message),
     })
   }
 

@@ -9,7 +9,7 @@ import { onLogin } from '#/server/cookies'
 
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
-import { toast } from 'react-toastify'
+import { useTanukiPopup } from '#/components/tanuki'
 
 const DEFAULT_VALUES: LoginSchema = {
   email: '',
@@ -32,6 +32,7 @@ function Home() {
   const router = useRouter()
   const { mutate, isPending } = useLogin()
   const { t } = useI18n()
+  const { showError } = useTanukiPopup()
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
@@ -61,8 +62,7 @@ function Home() {
           router.navigate({ to: '/dashboard' })
         },
         onError: (error) => {
-          if (error.response?.data.message)
-            toast.error(error.response.data.message)
+          showError('エラーが発生しました', error.response?.data.message ?? 'もう一度お試しください')
         },
       })
     },

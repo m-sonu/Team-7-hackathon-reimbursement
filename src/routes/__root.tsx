@@ -5,7 +5,7 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { ToastContainer } from 'react-toastify'
+import { TanukiPopupProvider } from '#/components/tanuki'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
@@ -67,7 +67,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <I18nProvider>{children}</I18nProvider>
+        <I18nProvider>
+          <TanukiPopupProvider>{children}</TanukiPopupProvider>
+        </I18nProvider>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
@@ -79,13 +81,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             },
             TanStackQueryDevtools,
           ]}
-        />
-        <ToastContainer
-          stacked
-          newestOnTop
-          closeButton
-          position="top-right"
-          autoClose={3000}
         />
         <Scripts />
       </body>
