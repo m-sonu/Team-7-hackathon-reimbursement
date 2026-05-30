@@ -376,7 +376,7 @@ function DashboardPage() {
                     {bill.title}
                   </TableCell>
                   <TableCell className="text-gray-600">
-                    {bill.category ?? '—'}
+                    {bill.category ? resolveCategory(bill.category) : '—'}
                   </TableCell>
                   <TableCell className="font-medium text-gray-900">
                     {bill.amount}

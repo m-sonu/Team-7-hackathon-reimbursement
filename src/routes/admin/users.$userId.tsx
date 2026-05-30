@@ -56,7 +56,9 @@ function AdminUserDetailPage() {
   const { userId } = Route.useParams()
   const search = Route.useSearch()
   const navigate = useNavigate()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
+  const resolveCategory = (cat: { en: string; jp: string }) =>
+    lang === 'ja' ? cat.jp || cat.en : cat.en
 
   const token = context.token ?? ''
   const currentMonth = new Date().getMonth() + 1
@@ -312,7 +314,7 @@ function AdminUserDetailPage() {
                         {bill.updated_at}
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {bill.category_name}
+                        {resolveCategory(bill.category)}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {bill.bill_count}

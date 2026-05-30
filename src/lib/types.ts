@@ -63,7 +63,7 @@ export type BillStatus =
 export type UserBill = {
   id: number
   title: string
-  category: string | null
+  category: { en: string; jp: string } | null
   created_date: string
   approved_amount: string
   amount: string
@@ -192,7 +192,7 @@ export type AdminEmployeeBillsResponse = {
 
 export type CategoryBill = {
   category_id: number
-  category_name: string
+  category: { en: string; jp: string }
   total_amount: string
   approved_amount: string
   bill_count: number

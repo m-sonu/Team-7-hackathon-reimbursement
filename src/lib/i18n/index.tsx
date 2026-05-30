@@ -81,9 +81,12 @@ export type Translations = {
     totalSubmitted: string
     totalApproved: string
     receiptPreview: string
-    amount: string
+    nativeAmount: string
     titleOfReceipt: string
+    billCount: string
+    billCountSingle: string
     updateStatus: string
+    rejectRequiresReason: string
     markAsReviewed: string
     reviewed: string
     markAsReimbursed: string
@@ -95,6 +98,9 @@ export type Translations = {
     rejected: string
     rejectSuccess: string
     reimbursed: string
+    reasonForRejection: string
+    reasonForRejectionPlaceholder: string
+    reasonRequired: string
   }
   adminUserDetail: {
     totalSubmitted: string
@@ -124,6 +130,10 @@ export type Translations = {
     errFilesMax: string
     errImageOnly: string
     removeFile: string
+    uploadSuccessTitle: string
+    uploadSuccessBody: string
+    errorTitle: string
+    errorBody: string
   }
   billDetail: {
     receiptPreview: string
@@ -176,6 +186,16 @@ export type Translations = {
     removeSuccess: string
     removeError: string
     confirmRemove: string
+    loadingBills: string
+    almostDone: string
+    updateSuccessTitle: string
+    updateSuccessBody: string
+    removeSuccessTitle: string
+    removeSuccessBody: string
+    submitSuccessTitle: string
+    submitSuccessBody: string
+    errorTitle: string
+    errorBody: string
   }
   submitSuccess: {
     heading: string

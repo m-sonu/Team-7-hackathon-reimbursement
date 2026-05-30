@@ -37,7 +37,7 @@ function UploadExpensePage() {
 
   const [title, setTitle] = React.useState('')
   const [categoryId, setCategoryId] = React.useState('')
-  const [currency, setCurrency] = React.useState('')
+  const [currency, setCurrency] = React.useState('YEN')
   const [files, setFiles] = React.useState<File[]>([])
   const [isDragging, setIsDragging] = React.useState(false)
   const [errors, setErrors] = React.useState<Record<string, string>>({})
@@ -138,7 +138,7 @@ function UploadExpensePage() {
       { data: formData, token },
       {
         onSuccess: (res) => {
-          showSuccess('アップロード完了！', 'ファイルが正常に送信されました')
+          showSuccess(t.uploadExpense.uploadSuccessTitle, t.uploadExpense.uploadSuccessBody)
           navigate({
             to: '/review-batch/$batchId',
             params: { batchId: String(res.data.batch_id) },
@@ -151,7 +151,7 @@ function UploadExpensePage() {
           const firstValidationMsg = validationErrors
             ? (Object.values(validationErrors).flat()[0] as string | undefined)
             : undefined
-          showError('エラーが発生しました', firstValidationMsg ?? data?.message ?? 'もう一度お試しください')
+          showError(t.uploadExpense.errorTitle, firstValidationMsg ?? data?.message ?? t.uploadExpense.errorBody)
         },
       },
     )

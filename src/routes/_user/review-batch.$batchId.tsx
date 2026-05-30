@@ -34,7 +34,13 @@ export const Route = createFileRoute('/_user/review-batch/$batchId')({
 function ProcessingBanner({
   labels,
 }: {
-  labels: { stepUploaded: string; stepScanning: string; stepReview: string }
+  labels: {
+    processingTitle: string
+    stepUploaded: string
+    stepScanning: string
+    stepReview: string
+    almostDone: string
+  }
 }) {
   const steps: Array<{ label: string; state: 'done' | 'active' | 'pending'; emotion: StepEmotion }> = [
     { label: labels.stepUploaded, state: 'done',    emotion: 'proud'   },
@@ -44,6 +50,7 @@ function ProcessingBanner({
 
   return (
     <div className="rounded-xl border border-indigo-100 bg-indigo-50 py-12 text-center">
+      <p className="mb-6 text-base font-semibold text-gray-800">{labels.processingTitle}</p>
       <div className="flex items-center justify-center mb-8">
         {steps.map((step, i) => (
           <React.Fragment key={step.label}>
@@ -506,10 +513,10 @@ function ReviewBatchPage() {
       { billId, data, token },
       {
         onSuccess: () => {
-          showSuccess('更新完了！', '変更が保存されました')
+          showSuccess(t.reviewBatch.updateSuccessTitle, t.reviewBatch.updateSuccessBody)
           queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
         },
-        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -519,10 +526,10 @@ function ReviewBatchPage() {
       { billId, token },
       {
         onSuccess: () => {
-          showSuccess('削除完了', '請求書が削除されました')
+          showSuccess(t.reviewBatch.removeSuccessTitle, t.reviewBatch.removeSuccessBody)
           queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
         },
-        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -532,14 +539,14 @@ function ReviewBatchPage() {
       { batchId: Number(batchId), token },
       {
         onSuccess: () => {
-          showSuccess('申請完了！🎉', '請求書が送信されました')
+          showSuccess(t.reviewBatch.submitSuccessTitle, t.reviewBatch.submitSuccessBody)
           queryClient.invalidateQueries({ queryKey: ['employeeDashboard'] })
           queryClient.invalidateQueries({ queryKey: ['userBills'] })
           navigate({ to: '/dashboard' })
         },
         onError: (error) => {
           const msg = error.response?.data.message || ''
-          showError('エラーが発生しました', msg || 'もう一度お試しください')
+          showError(t.reviewBatch.errorTitle, msg || t.reviewBatch.errorBody)
         },
       },
     )
@@ -620,7 +627,7 @@ function ReviewBatchPage() {
 
         {(!loaderDone || isLoading) && (
           <TanukiLoader
-            message="請求書を読み込み中..."
+            message={t.reviewBatch.loadingBills}
             onComplete={() => setLoaderDone(true)}
           />
         )}
@@ -631,9 +638,11 @@ function ReviewBatchPage() {
             {isProcessing && (
               <ProcessingBanner
                 labels={{
+                  processingTitle: t.reviewBatch.processingTitle,
                   stepUploaded: t.reviewBatch.stepUploaded,
                   stepScanning: t.reviewBatch.stepScanning,
                   stepReview: t.reviewBatch.stepReview,
+                  almostDone: t.reviewBatch.almostDone,
                 }}
               />
             )}
