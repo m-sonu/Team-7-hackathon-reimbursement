@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
-import { HankoStamp, TanukiLoader, TanukiMascot } from '#/components/tanuki'
+import { TanukiLoader, TanukiMascot } from '#/components/tanuki'
 import { useSubmitBatch, useUserBillDetails } from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import { useQueryClient } from '@tanstack/react-query'
@@ -384,11 +384,10 @@ function BillDetailPage() {
                             status={bill.status}
                             labels={timelineLabels}
                           />
-                          <div className="ml-auto shrink-0 flex flex-col items-center gap-1">
+                          <div className="ml-auto shrink-0">
                             <Badge variant={statusConfig.variant}>
                               {statusConfig.label}
                             </Badge>
-                            <HankoStamp status={bill.status} />
                           </div>
                         </div>
                       </div>

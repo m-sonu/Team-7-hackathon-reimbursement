@@ -39,7 +39,6 @@ export function TanukiLoader({ message, onComplete }: TanukiLoaderProps) {
       }
     }
 
-    // Fallback in case metadata never arrives
     timer = setTimeout(finish, FALLBACK_MS)
 
     if (video.readyState >= 1 && video.duration && isFinite(video.duration)) {
@@ -55,7 +54,7 @@ export function TanukiLoader({ message, onComplete }: TanukiLoaderProps) {
   }, [])
 
   return (
-    <div className="flex flex-col items-center gap-3 py-8">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4">
       <video
         ref={videoRef}
         src="/tanuki%20webm/loader.webm"
@@ -63,7 +62,7 @@ export function TanukiLoader({ message, onComplete }: TanukiLoaderProps) {
         loop
         muted
         playsInline
-        style={{ maxWidth: 150 }}
+        style={{ width: 260 }}
       />
       <p className="text-sm text-gray-500">
         {message ?? 'たぬきが頑張っています...'}
