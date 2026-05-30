@@ -27,7 +27,7 @@ const VIDEO_SRC: Record<Phase, string> = {
   uploaded: '/tanuki%20webm/uploaded.webm',
   searching: '/tanuki%20webm/ai_processing.webm',
   sleeping: '/tanuki%20webm/ai_processing.webm',
-  excited: '/tanuki%20webm/ai_process_completed.gif',
+  excited: '/tanuki%20webm/ai_process_completed.webm',
 }
 
 export function TanukiScanner({ isScanning, onComplete }: Props) {
