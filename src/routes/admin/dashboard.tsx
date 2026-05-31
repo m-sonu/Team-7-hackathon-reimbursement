@@ -23,13 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
-import { Skeleton } from '#/components/ui/skeleton'
+import { TanukiLoader, TanukiMascot } from '#/components/tanuki'
 import { useEmployeeBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { TanukiMascot } from '#/components/tanuki'
 import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
@@ -103,6 +102,9 @@ function AdminDashboardPage() {
   const { data: res, isLoading } = useEmployeeBills(token, filters)
   const employees = res?.data?.data ?? []
   const meta = res?.meta
+
+  const [loaderDone, setLoaderDone] = React.useState(false)
+  React.useEffect(() => { setLoaderDone(false) }, [filters])
 
   function billsCountBadge(count: number) {
     return <Badge variant="muted">{count}</Badge>
@@ -180,6 +182,9 @@ function AdminDashboardPage() {
             </div>
           </div>
 
+          {(!loaderDone || isLoading) ? (
+            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -192,17 +197,7 @@ function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-4" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : employees.length === 0 ? (
+              {employees.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
@@ -247,6 +242,7 @@ function AdminDashboardPage() {
               )}
             </TableBody>
           </Table>
+          )}
 
           {meta && (
             <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5">

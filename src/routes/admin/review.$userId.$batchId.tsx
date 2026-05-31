@@ -8,16 +8,14 @@ import {
   useReimburseByPivot,
   useVerifyBill,
 } from '#/hooks/queries/admin'
-import { Skeleton } from '#/components/ui/skeleton'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { useQueryClient } from '@tanstack/react-query'
+import { TanukiLoader, TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { TanukiMascot } from '#/components/tanuki'
 import { ArrowLeft, FileImage, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
 import { z } from 'zod'
 
 const searchSchema = z.object({
@@ -76,6 +74,8 @@ function AdminReviewPage() {
 
   const hasUnreviewedBills = !!(statusCounts['pending'] || statusCounts['under review'])
 
+  const { showSuccess, showError } = useTanukiPopup()
+  const [loaderDone, setLoaderDone] = useState(false)
   const [rejectReasons, setRejectReasons] = useState<Record<number, string>>({})
   const [rejectErrors, setRejectErrors] = useState<Record<number, boolean>>({})
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
@@ -91,8 +91,8 @@ function AdminReviewPage() {
     verifyMutation.mutate(
       { billId, token, approveAmount },
       {
-        onSuccess: () => toast.success(t.adminReview.reviewedSuccess),
-        onError: () => toast.error('Failed to mark as reviewed.'),
+        onSuccess: () => showSuccess(t.adminReview.reviewed, t.adminReview.reviewedSuccess),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -107,11 +107,11 @@ function AdminReviewPage() {
       { billId, token, reason_for_action: reason },
       {
         onSuccess: () => {
-          toast.success(t.adminReview.rejectSuccess)
+          showSuccess(t.adminReview.rejected, t.adminReview.rejectSuccess)
           setRejectReasons((prev) => ({ ...prev, [billId]: '' }))
           setRejectErrors((prev) => ({ ...prev, [billId]: false }))
         },
-        onError: () => toast.error('Failed to reject bill.'),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -120,8 +120,8 @@ function AdminReviewPage() {
     bulkMutation.mutate(
       { batchId: categoryId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onSuccess: () => showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -132,11 +132,11 @@ function AdminReviewPage() {
       { pivotId, token },
       {
         onSuccess: () => {
-          toast.success(t.adminReview.reimbursedSuccess)
+          showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess)
           queryClient.invalidateQueries({ queryKey: ['adminCategoryBills', userIdNum, categoryId] })
           queryClient.invalidateQueries({ queryKey: ['adminCategoryWiseBills', userIdNum] })
         },
-        onError: () => toast.error('Failed to reimburse bills.'),
+        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
       },
     )
   }
@@ -231,13 +231,13 @@ function AdminReviewPage() {
         </div>
 
         {/* Bills list */}
-        {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-56 rounded-xl" />
-            ))}
-          </div>
-        ) : bills.length === 0 ? (
+        {(!loaderDone || isLoading) && (
+          <TanukiLoader
+            message={t.reviewBatch.loadingBills}
+            onComplete={() => setLoaderDone(true)}
+          />
+        )}
+        {loaderDone && !isLoading && (bills.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-16">
             <TanukiMascot mood="sleeping" size="md" />
             <p className="text-sm text-muted-foreground">{t.adminReview.noExpenses}</p>
@@ -426,7 +426,7 @@ function AdminReviewPage() {
               </div>
             ))}
           </div>
-        )}
+        ))}
       </div>
 
       {/* Lightbox overlay */}

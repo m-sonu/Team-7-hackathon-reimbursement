@@ -19,6 +19,7 @@ const ja: Translations = {
     viewDetails: '詳細を見る',
     backToDashboard: 'ダッシュボードに戻る',
     noExpenses: '選択したフィルターに該当する経費がありません。',
+    loading: 'ロード中...',
     months: [
       '1月',
       '2月',

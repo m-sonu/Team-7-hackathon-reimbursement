@@ -28,14 +28,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '#/components/ui/tooltip'
-import { Skeleton } from '#/components/ui/skeleton'
+import { TanukiLoader, TanukiMascot } from '#/components/tanuki'
 import { useCategories } from '#/hooks/queries/categories'
 import { useUserBills } from '#/hooks/queries/bills'
 import { useEmployeeDashboard } from '#/hooks/queries/user'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { TanukiMascot } from '#/components/tanuki'
 import { AlertTriangle, Filter, Plus } from 'lucide-react'
 import * as React from 'react'
 
@@ -165,6 +164,8 @@ function DashboardPage() {
 
   const { data: categoriesRes } = useCategories(token)
 
+  const [loaderDone, setLoaderDone] = React.useState(false)
+  React.useEffect(() => { setLoaderDone(false) }, [filters])
 
   const bills = billsRes?.data ?? []
   const meta = billsRes?.meta
@@ -334,29 +335,22 @@ function DashboardPage() {
           </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>{t.userDashboard.colDate}</TableHead>
-              <TableHead>{t.userDashboard.colTitle}</TableHead>
-              <TableHead>{t.common.category}</TableHead>
-              <TableHead>{t.userDashboard.colAmount}</TableHead>
-              <TableHead>{t.common.status}</TableHead>
-              <TableHead>{t.common.action}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isBillsLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="h-4" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : bills.length === 0 ? (
+        {(!loaderDone || isBillsLoading) ? (
+          <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t.userDashboard.colDate}</TableHead>
+                <TableHead>{t.userDashboard.colTitle}</TableHead>
+                <TableHead>{t.common.category}</TableHead>
+                <TableHead>{t.userDashboard.colAmount}</TableHead>
+                <TableHead>{t.common.status}</TableHead>
+                <TableHead>{t.common.action}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bills.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -399,8 +393,9 @@ function DashboardPage() {
                 </TableRow>
               ))
             )}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        )}
 
         {/* Pagination */}
         {meta && (

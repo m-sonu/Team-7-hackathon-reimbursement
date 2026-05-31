@@ -1,4 +1,3 @@
-import { Skeleton } from '#/components/ui/skeleton'
 import { AdminHeader } from '#/components/admin/AdminHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -24,10 +23,9 @@ import type { Category } from '#/lib/types'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { TanukiMascot } from '#/components/tanuki'
+import { TanukiLoader, TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 import { LayoutGrid, Pencil, Plus, Trash2, X, Check } from 'lucide-react'
 import * as React from 'react'
-import { useTanukiPopup } from '#/components/tanuki'
 
 export const Route = createFileRoute('/admin/categories')({
   beforeLoad: async ({ context }) => {
@@ -75,6 +73,7 @@ function AdminCategoriesPage() {
   const updateMutation = useUpdateCategory(token)
   const deleteMutation = useDeleteCategory(token)
   const { showSuccess, showError } = useTanukiPopup()
+  const [loaderDone, setLoaderDone] = React.useState(false)
 
   // null = no new-row form; 'new' = creating; number = editing category id
   const [editingId, setEditingId] = React.useState<'new' | number | null>(null)
@@ -197,6 +196,9 @@ function AdminCategoriesPage() {
             {t.adminCategories.title}
           </div>
 
+          {(!loaderDone || isLoading) ? (
+            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -225,17 +227,7 @@ function AdminCategoriesPage() {
                 />
               )}
 
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((__, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-4" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : categories.length === 0 && editingId !== 'new' ? (
+              {categories.length === 0 && editingId !== 'new' ? (
                 <TableRow>
                   <TableCell colSpan={5} className="py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
@@ -317,6 +309,7 @@ function AdminCategoriesPage() {
               )}
             </TableBody>
           </Table>
+          )}
         </Card>
       </div>
     </div>
