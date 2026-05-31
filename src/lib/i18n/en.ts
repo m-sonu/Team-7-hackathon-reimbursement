@@ -41,6 +41,7 @@ const en: Translations = {
       rejected: 'Rejected',
       paid: 'Reimbursed',
       done: 'Done',
+      reviewed: 'Reviewed',
     },
   },
   login: {

@@ -2,13 +2,13 @@ import { AdminHeader } from '#/components/admin/AdminHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent } from '#/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '#/components/ui/select'
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '#/components/ui/select'
 import {
   Table,
   TableBody,
@@ -35,6 +35,7 @@ import { z } from 'zod'
 const searchSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  name: z.string().optional(),
 })
 
 export const Route = createFileRoute('/admin/users/$userId')({
@@ -231,7 +232,7 @@ function AdminUserDetailPage() {
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {`Employee #${userId}`}
+                  {search.name ?? `Employee #${userId}`}
                 </h2>
               </div>
 
@@ -253,7 +254,10 @@ function AdminUserDetailPage() {
                   </p>
                 </div>
                 {isFullyReimbursed ? (
-                  <Badge variant="success" className="px-4 py-2 text-sm shrink-0">
+                  <Badge
+                    variant="success"
+                    className="px-4 py-2 text-sm shrink-0"
+                  >
                     {t.common.statusLabels.paid}
                   </Badge>
                 ) : hasVerifiedBills ? (
@@ -278,82 +282,88 @@ function AdminUserDetailPage() {
             </h3>
           </div>
 
-          {(!loaderDone || isLoading) ? (
-            <TanukiLoader message={t.common.loading} onComplete={() => setLoaderDone(true)} />
+          {!loaderDone || isLoading ? (
+            <TanukiLoader
+              message={t.common.loading}
+              onComplete={() => setLoaderDone(true)}
+            />
           ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>{t.adminUserDetail.colLatestDate}</TableHead>
-                <TableHead>{t.common.category}</TableHead>
-                <TableHead>{t.adminUserDetail.colNoOfBills}</TableHead>
-                <TableHead>{t.adminUserDetail.colSubmittedAmount}</TableHead>
-                <TableHead>{t.adminUserDetail.colApprovedAmount}</TableHead>
-                <TableHead>{t.common.status}</TableHead>
-                <TableHead>{t.common.action}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {bills.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="py-12 text-center text-sm text-muted-foreground"
-                  >
-                    {t.common.noExpenses}
-                  </TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>{t.adminUserDetail.colLatestDate}</TableHead>
+                  <TableHead>{t.common.category}</TableHead>
+                  <TableHead>{t.adminUserDetail.colNoOfBills}</TableHead>
+                  <TableHead>{t.adminUserDetail.colSubmittedAmount}</TableHead>
+                  <TableHead>{t.adminUserDetail.colApprovedAmount}</TableHead>
+                  {/*<TableHead>{t.common.status}</TableHead>*/}
+                  <TableHead>{t.common.action}</TableHead>
                 </TableRow>
-              ) : (
-                bills.map((bill) => {
-                  const statusCfg = STATUS_CONFIG[bill.status] ?? {
-                    label: bill.status,
-                    variant: 'muted' as const,
-                  }
-                  return (
-                    <TableRow key={bill.category_id}>
-                      <TableCell className="text-gray-600">
-                        {bill.updated_at}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {resolveCategory(bill.category)}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {bill.bill_count}
-                      </TableCell>
-                      <TableCell className="font-medium text-gray-900">
-                        {bill.total_amount}
-                      </TableCell>
-                      <TableCell className="font-medium text-gray-900">
-                        {bill.approved_amount !== '¥0' &&
-                        bill.approved_amount !== '0'
-                          ? bill.approved_amount
-                          : '—'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusCfg.variant}>
-                          {statusCfg.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          to="/admin/review/$userId/$batchId"
-                          params={{ userId: userId, batchId: String(bill.category_id) }}
-                          search={{
-                            startDate: search.startDate,
-                            endDate: search.endDate,
-                          }}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                        >
-                          <Eye className="size-3.5" />
-                          {t.adminUserDetail.review}
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {bills.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="py-12 text-center text-sm text-muted-foreground"
+                    >
+                      {t.common.noExpenses}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  bills.map((bill) => {
+                    const statusCfg = STATUS_CONFIG[bill.status] ?? {
+                      label: bill.status,
+                      variant: 'muted' as const,
+                    }
+                    return (
+                      <TableRow key={bill.category_id}>
+                        <TableCell className="text-gray-600">
+                          {bill.updated_at}
+                        </TableCell>
+                        <TableCell className="text-gray-600">
+                          {resolveCategory(bill.category)}
+                        </TableCell>
+                        <TableCell className="text-gray-600">
+                          {bill.bill_count}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {bill.total_amount}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {bill.approved_amount !== '¥0' &&
+                          bill.approved_amount !== '0'
+                            ? bill.approved_amount
+                            : '—'}
+                        </TableCell>
+                        {/*<TableCell>*/}
+                        {/*  <Badge variant={statusCfg.variant}>*/}
+                        {/*    {statusCfg.label}*/}
+                        {/*  </Badge>*/}
+                        {/*</TableCell>*/}
+                        <TableCell>
+                          <Link
+                            to="/admin/review/$userId/$batchId"
+                            params={{
+                              userId: userId,
+                              batchId: String(bill.category_id),
+                            }}
+                            search={{
+                              startDate: search.startDate,
+                              endDate: search.endDate,
+                            }}
+                            className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                          >
+                            <Eye className="size-3.5" />
+                            {t.adminUserDetail.review}
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
+              </TableBody>
+            </Table>
           )}
         </Card>
       </div>

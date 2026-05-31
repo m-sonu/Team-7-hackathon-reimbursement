@@ -29,6 +29,7 @@ export type Translations = {
       submitted: string
       pending: string
       verified: string
+      reviewed: string
       rejected: string
       paid: string
       done: string

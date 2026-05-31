@@ -118,7 +118,7 @@ function DashboardPage() {
       { value: 'all', label: t.common.allStatuses },
       { value: 'pending', label: t.common.statusLabels.pending },
       { value: 'under review', label: t.common.statusLabels.submitted },
-      { value: 'verified', label: t.common.statusLabels.verified },
+      { value: 'verified', label: t.common.statusLabels.reviewed },
       { value: 'rejected', label: t.common.statusLabels.rejected },
       { value: 'reimbursed', label: t.common.statusLabels.paid },
     ],
@@ -135,7 +135,7 @@ function DashboardPage() {
     () => ({
       pending: { label: t.common.statusLabels.pending, variant: 'muted' },
       'under review': { label: t.common.statusLabels.submitted, variant: 'warning' },
-      verified: { label: t.common.statusLabels.verified, variant: 'info' },
+      verified: { label: t.common.statusLabels.reviewed, variant: 'info' },
       rejected: { label: t.common.statusLabels.rejected, variant: 'destructive' },
       reimbursed: { label: t.common.statusLabels.paid, variant: 'success' },
     }),
@@ -355,7 +355,6 @@ function DashboardPage() {
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-3">
-                    <TanukiMascot mood="searching" size="md" />
                     <p className="text-sm text-muted-foreground">{t.common.noExpenses}</p>
                   </div>
                 </TableCell>

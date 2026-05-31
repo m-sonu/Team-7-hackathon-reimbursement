@@ -41,6 +41,7 @@ const ja: Translations = {
       rejected: '却下',
       paid: '支払済',
       done: '完了',
+      reviewed: 'レビュー済み',
     },
   },
   login: {
@@ -253,7 +254,8 @@ const ja: Translations = {
     sessionExpired: 'セッションが切れました。再度ログインしてください。',
   },
   apiErrors: {
-    action_only_allowed_for_the_current_billing_month: 'この操作は現在の請求月のみ許可されています。',
+    action_only_allowed_for_the_current_billing_month:
+      'この操作は現在の請求月のみ許可されています。',
   },
 }
 

@@ -201,7 +201,6 @@ function AdminDashboardPage() {
                 <TableRow>
                   <TableCell colSpan={6} className="py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
-                      <TanukiMascot mood="sleeping" size="md" />
                       <p className="text-sm text-muted-foreground">{t.adminDashboard.noSubmissions}</p>
                     </div>
                   </TableCell>
@@ -229,6 +228,7 @@ function AdminDashboardPage() {
                             search: {
                               startDate,
                               endDate,
+                              name:emp.name
                             },
                           })
                         }
