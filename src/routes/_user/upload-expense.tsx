@@ -167,7 +167,6 @@ function UploadExpensePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 animate-fade-up">
       <div className="mb-6 flex items-center gap-4">
-        <TanukiMascot mood="excited" size="md" className="shrink-0" />
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             {t.common.uploadExpense}

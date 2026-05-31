@@ -1,6 +1,7 @@
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
+import { Skeleton } from '#/components/ui/skeleton'
 import {
   Pagination,
   PaginationContent,
@@ -154,7 +155,7 @@ function DashboardPage() {
   )
 
   const { data: dashboardRes, isLoading: isDashboardLoading } =
-    useEmployeeDashboard(userId, token)
+    useEmployeeDashboard(userId, token, { start_date: startDate, end_date: endDate })
 
   const { data: billsRes, isLoading: isBillsLoading } = useUserBills(
     userId,

@@ -255,6 +255,9 @@ const en: Translations = {
   auth: {
     sessionExpired: 'Session expired. Please log in again.',
   },
+  apiErrors: {
+    action_only_allowed_for_the_current_billing_month: 'This action is only allowed for the current billing month.',
+  },
 }
 
 export default en

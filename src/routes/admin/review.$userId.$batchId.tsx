@@ -11,6 +11,8 @@ import {
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
+import type { ApiError } from '#/lib/types'
+import type { AxiosError } from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { TanukiLoader, TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
@@ -80,6 +82,12 @@ function AdminReviewPage() {
   const [rejectErrors, setRejectErrors] = useState<Record<number, boolean>>({})
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
 
+  const handleApiError = (err: AxiosError<ApiError>) => {
+    const msgKey = err.response?.data?.message
+    const translated = msgKey ? (t.apiErrors as Record<string, string>)[msgKey] : undefined
+    showError(t.reviewBatch.errorTitle, translated ?? t.reviewBatch.errorBody)
+  }
+
   useEffect(() => {
     if (!lightboxUrl) return
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setLightboxUrl(null) }
@@ -92,7 +100,7 @@ function AdminReviewPage() {
       { billId, token, approveAmount },
       {
         onSuccess: () => showSuccess(t.adminReview.reviewed, t.adminReview.reviewedSuccess),
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: handleApiError,
       },
     )
   }
@@ -111,7 +119,7 @@ function AdminReviewPage() {
           setRejectReasons((prev) => ({ ...prev, [billId]: '' }))
           setRejectErrors((prev) => ({ ...prev, [billId]: false }))
         },
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: handleApiError,
       },
     )
   }
@@ -121,7 +129,7 @@ function AdminReviewPage() {
       { batchId: categoryId, token },
       {
         onSuccess: () => showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess),
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: handleApiError,
       },
     )
   }
@@ -133,10 +141,9 @@ function AdminReviewPage() {
       {
         onSuccess: () => {
           showSuccess(t.adminReview.reimbursed, t.adminReview.reimbursedSuccess)
-          queryClient.invalidateQueries({ queryKey: ['adminCategoryBills', userIdNum, categoryId] })
-          queryClient.invalidateQueries({ queryKey: ['adminCategoryWiseBills', userIdNum] })
+          setTimeout(() => window.location.reload(), 1000)
         },
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: handleApiError,
       },
     )
   }
@@ -216,7 +223,6 @@ function AdminReviewPage() {
         {/* Page heading */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <TanukiMascot mood="stamping" size="sm" className="shrink-0" />
             <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
           </div>
           {statusCounts['verified'] && pivotId ? (

@@ -2,9 +2,14 @@ import type { EmployeeDashboardResponse } from '../types'
 import { urls } from '../urls'
 import * as axios from '../utils/axios'
 
-export function fetchEmployeeDashboard(userId: number, token: string) {
+export function fetchEmployeeDashboard(
+  userId: number,
+  token: string,
+  filters?: { start_date?: string; end_date?: string },
+) {
   return axios.get<EmployeeDashboardResponse>({
     url: urls.userDashboard(userId),
+    params: filters,
     token,
   })
 }

@@ -252,6 +252,9 @@ const ja: Translations = {
   auth: {
     sessionExpired: 'セッションが切れました。再度ログインしてください。',
   },
+  apiErrors: {
+    action_only_allowed_for_the_current_billing_month: 'この操作は現在の請求月のみ許可されています。',
+  },
 }
 
 export default ja

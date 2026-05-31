@@ -76,7 +76,6 @@ function Home() {
 
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex justify-center mb-2">
-            <TanukiMascot mood="idle" size="lg" />
           </div>
           <h2 className="text-xs font-semibold tracking-widest text-indigo-600 uppercase mb-1">
             {t.common.appName}

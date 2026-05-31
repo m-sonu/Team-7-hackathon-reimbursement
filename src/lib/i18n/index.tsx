@@ -242,6 +242,9 @@ export type Translations = {
   auth: {
     sessionExpired: string
   }
+  apiErrors: {
+    action_only_allowed_for_the_current_billing_month: string
+  }
 }
 
 const STORAGE_KEY = 'lang'

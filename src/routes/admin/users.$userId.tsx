@@ -73,7 +73,6 @@ function AdminUserDetailPage() {
   const STATUS_OPTIONS = React.useMemo(
     () => [
       { value: 'all', label: t.common.allStatuses },
-      { value: 'pending', label: t.common.statusLabels.pending },
       { value: 'under review', label: t.common.statusLabels.submitted },
       { value: 'verified', label: t.common.statusLabels.verified },
       { value: 'rejected', label: t.common.statusLabels.rejected },
@@ -169,8 +168,15 @@ function AdminUserDetailPage() {
     markReimbursed(
       { token, month: Number(month) },
       {
-        onSuccess: () => showSuccess('ステータス更新！', '変更が反映されました'),
-        onError: () => showError('エラーが発生しました', 'もう一度お試しください'),
+        onSuccess: () => {
+          showSuccess('ステータス更新！', '変更が反映されました')
+          setTimeout(() => window.location.reload(), 1000)
+        },
+        onError: (err) => {
+          const msgKey = err.response?.data?.message
+          const translated = msgKey ? (t.apiErrors as Record<string, string>)[msgKey] : undefined
+          showError(t.reviewBatch.errorTitle, translated ?? t.reviewBatch.errorBody)
+        },
       },
     )
   }
@@ -191,31 +197,31 @@ function AdminUserDetailPage() {
           </button>
 
           <div className="flex items-center gap-3">
-            <Select value={month} onValueChange={setMonth}>
-              <SelectTrigger className="w-32" size="sm">
-                <SelectValue placeholder={t.common.month} />
-              </SelectTrigger>
-              <SelectContent>
-                {MONTHS.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>
-                    {m.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/*<Select value={month} onValueChange={setMonth}>*/}
+            {/*  <SelectTrigger className="w-32" size="sm">*/}
+            {/*    <SelectValue placeholder={t.common.month} />*/}
+            {/*  </SelectTrigger>*/}
+            {/*  <SelectContent>*/}
+            {/*    {MONTHS.map((m) => (*/}
+            {/*      <SelectItem key={m.value} value={m.value}>*/}
+            {/*        {m.label}*/}
+            {/*      </SelectItem>*/}
+            {/*    ))}*/}
+            {/*  </SelectContent>*/}
+            {/*</Select>*/}
 
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-32" size="sm">
-                <SelectValue placeholder={t.common.status} />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/*<Select value={status} onValueChange={setStatus}>*/}
+            {/*  <SelectTrigger className="w-32" size="sm">*/}
+            {/*    <SelectValue placeholder={t.common.status} />*/}
+            {/*  </SelectTrigger>*/}
+            {/*  <SelectContent>*/}
+            {/*    {STATUS_OPTIONS.map((s) => (*/}
+            {/*      <SelectItem key={s.value} value={s.value}>*/}
+            {/*        {s.label}*/}
+            {/*      </SelectItem>*/}
+            {/*    ))}*/}
+            {/*  </SelectContent>*/}
+            {/*</Select>*/}
           </div>
         </div>
 

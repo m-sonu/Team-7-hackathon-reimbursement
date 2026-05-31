@@ -621,9 +621,9 @@ function ReviewBatchPage() {
         </div>
 
         {/* Month note */}
-        <p className="mb-6 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
-          {t.reviewBatch.monthNote}
-        </p>
+        {/*<p className="mb-6 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-md px-3 py-2">*/}
+        {/*  {t.reviewBatch.monthNote}*/}
+        {/*</p>*/}
 
         {(!loaderDone || isLoading) && (
           <TanukiLoader
