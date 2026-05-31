@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '#/components/ui/tooltip'
+import { Skeleton } from '#/components/ui/skeleton'
 import { useCategories } from '#/hooks/queries/categories'
 import { useUserBills } from '#/hooks/queries/bills'
 import { useEmployeeDashboard } from '#/hooks/queries/user'
@@ -169,7 +170,7 @@ function DashboardPage() {
   const categories = categoriesRes?.data ?? []
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 animate-fade-up">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -189,13 +190,13 @@ function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="animate-fade-up delay-75">
           <CardHeader>
             <CardTitle>{t.userDashboard.totalReviewedSubmitted}</CardTitle>
           </CardHeader>
           <CardContent>
             {isDashboardLoading ? (
-              <div className="h-8 w-40 animate-pulse rounded bg-gray-100" />
+              <Skeleton className="h-8 w-40" />
             ) : (
               <p className="text-2xl font-bold text-gray-900">
                 {dashboardRes?.data?.approved_amount ?? '—'}
@@ -207,13 +208,13 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-fade-up delay-150">
           <CardHeader>
             <CardTitle>{t.userDashboard.totalReview}</CardTitle>
           </CardHeader>
           <CardContent>
             {isDashboardLoading ? (
-              <div className="h-8 w-12 animate-pulse rounded bg-gray-100" />
+              <Skeleton className="h-8 w-12" />
             ) : (
               <p className="text-2xl font-bold text-gray-900">
                 {dashboardRes?.data?.total_bills ?? 0}
@@ -222,7 +223,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-fade-up delay-[225ms]">
           <CardHeader>
             <CardTitle>{t.userDashboard.categoryBreakdown}</CardTitle>
           </CardHeader>
@@ -230,10 +231,7 @@ function DashboardPage() {
             {isDashboardLoading ? (
               <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-4 animate-pulse rounded bg-gray-100"
-                  />
+                  <Skeleton key={i} className="h-4" />
                 ))}
               </div>
             ) : dashboardRes?.data?.category_wise_amounts.length ? (
@@ -352,7 +350,7 @@ function DashboardPage() {
                 <TableRow key={i}>
                   {Array.from({ length: 6 }).map((_, j) => (
                     <TableCell key={j}>
-                      <div className="h-4 animate-pulse rounded bg-gray-100" />
+                      <Skeleton className="h-4" />
                     </TableCell>
                   ))}
                 </TableRow>

@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
+import { Skeleton } from '#/components/ui/skeleton'
 import { useEmployeeBills } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
@@ -110,7 +111,7 @@ function AdminDashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader user={context.user} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 animate-fade-up">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">
             {t.adminDashboard.title}
@@ -195,7 +196,7 @@ function AdminDashboardPage() {
                   <TableRow key={i}>
                     {Array.from({ length: 6 }).map((__, j) => (
                       <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
+                        <Skeleton className="h-4" />
                       </TableCell>
                     ))}
                   </TableRow>

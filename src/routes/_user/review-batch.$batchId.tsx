@@ -596,7 +596,7 @@ function ReviewBatchPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 animate-fade-up">
         {/* Back link */}
         <div className="mb-6">
           <Link

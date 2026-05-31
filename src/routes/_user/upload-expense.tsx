@@ -165,7 +165,7 @@ function UploadExpensePage() {
     files.length === 0
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 animate-fade-up">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
           {t.common.uploadExpense}

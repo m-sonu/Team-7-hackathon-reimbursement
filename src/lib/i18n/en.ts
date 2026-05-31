@@ -110,6 +110,7 @@ const en: Translations = {
     reasonForRejection: 'Reason for rejection',
     reasonForRejectionPlaceholder: 'Enter reason...',
     reasonRequired: 'Reason for rejection is required.',
+    clickToExpand: 'Click to expand',
   },
   adminUserDetail: {
     totalSubmitted: 'Total Submitted',

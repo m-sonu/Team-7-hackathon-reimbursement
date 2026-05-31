@@ -172,7 +172,7 @@ function BillDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 animate-fade-up">
       <div className="mb-6">
         <Link
           to="/dashboard"

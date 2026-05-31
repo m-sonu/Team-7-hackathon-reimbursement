@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
+import { Skeleton } from '#/components/ui/skeleton'
 import { useAdminCategoryWiseBills, useUserBulkReimburse } from '#/hooks/queries/admin'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
@@ -177,7 +178,7 @@ function AdminUserDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader user={context.user} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 animate-fade-up">
         {/* Top bar */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <button
@@ -288,7 +289,7 @@ function AdminUserDetailPage() {
                   <TableRow key={i}>
                     {Array.from({ length: 7 }).map((__, j) => (
                       <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
+                        <Skeleton className="h-4" />
                       </TableCell>
                     ))}
                   </TableRow>

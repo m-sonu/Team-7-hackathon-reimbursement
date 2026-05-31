@@ -110,6 +110,7 @@ const ja: Translations = {
     reasonForRejection: '却下理由',
     reasonForRejectionPlaceholder: '理由を入力...',
     reasonRequired: '却下理由を入力してください。',
+    clickToExpand: 'クリックして拡大',
   },
   adminUserDetail: {
     totalSubmitted: '申請合計',

@@ -101,6 +101,7 @@ export type Translations = {
     reasonForRejection: string
     reasonForRejectionPlaceholder: string
     reasonRequired: string
+    clickToExpand: string
   }
   adminUserDetail: {
     totalSubmitted: string

@@ -1,3 +1,4 @@
+import { Skeleton } from '#/components/ui/skeleton'
 import { AdminHeader } from '#/components/admin/AdminHeader'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -171,7 +172,7 @@ function AdminCategoriesPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader user={context.user} />
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 animate-fade-up">
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -228,7 +229,7 @@ function AdminCategoriesPage() {
                   <TableRow key={i}>
                     {Array.from({ length: 5 }).map((__, j) => (
                       <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
+                        <Skeleton className="h-4" />
                       </TableCell>
                     ))}
                   </TableRow>

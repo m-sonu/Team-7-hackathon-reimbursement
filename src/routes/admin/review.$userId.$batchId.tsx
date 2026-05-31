@@ -8,12 +8,14 @@ import {
   useReimburseByPivot,
   useVerifyBill,
 } from '#/hooks/queries/admin'
+import { Skeleton } from '#/components/ui/skeleton'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
+import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, FileImage } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, FileImage, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
 
@@ -43,6 +45,7 @@ function AdminReviewPage() {
   const navigate = useNavigate()
   const { t } = useI18n()
 
+  const queryClient = useQueryClient()
   const token = context.token ?? ''
   const userIdNum = Number(userId)
   const categoryId = Number(batchId)
@@ -74,6 +77,14 @@ function AdminReviewPage() {
 
   const [rejectReasons, setRejectReasons] = useState<Record<number, string>>({})
   const [rejectErrors, setRejectErrors] = useState<Record<number, boolean>>({})
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!lightboxUrl) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setLightboxUrl(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxUrl])
 
   const handleVerify = (billId: number, approveAmount: number) => {
     verifyMutation.mutate(
@@ -119,7 +130,11 @@ function AdminReviewPage() {
     reimburseByPivotMutation.mutate(
       { pivotId, token },
       {
-        onSuccess: () => toast.success(t.adminReview.reimbursedSuccess),
+        onSuccess: () => {
+          toast.success(t.adminReview.reimbursedSuccess)
+          queryClient.invalidateQueries({ queryKey: ['adminCategoryBills', userIdNum, categoryId] })
+          queryClient.invalidateQueries({ queryKey: ['adminCategoryWiseBills', userIdNum] })
+        },
         onError: () => toast.error('Failed to reimburse bills.'),
       },
     )
@@ -142,7 +157,7 @@ function AdminReviewPage() {
     <div className="min-h-screen bg-gray-50 pb-24">
       <AdminHeader user={context.user} />
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 animate-fade-up">
         {/* Top bar */}
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <button
@@ -217,10 +232,7 @@ function AdminReviewPage() {
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-56 animate-pulse rounded-xl bg-gray-100"
-              />
+              <Skeleton key={i} className="h-56 rounded-xl" />
             ))}
           </div>
         ) : bills.length === 0 ? (
@@ -236,8 +248,8 @@ function AdminReviewPage() {
                 groups[key].push(bill)
                 return groups
               }, {}),
-            ).map(([title, group]) => (
-              <div key={title}>
+            ).map(([title, group], idx) => (
+              <div key={title} className="animate-fade-up" style={{ animationDelay: `${idx * 80}ms` }}>
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex flex-col">
                     <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
@@ -277,11 +289,30 @@ function AdminReviewPage() {
                             {t.adminReview.receiptPreview}
                           </p>
                           {bill.file_preview_url ? (
-                            <img
-                              src={bill.file_preview_url}
-                              alt={t.adminReview.receiptPreview}
-                              className="max-h-64 w-full rounded-lg object-contain"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setLightboxUrl(bill.file_preview_url)}
+                              className="block w-full text-left"
+                            >
+                              <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white hover:border-indigo-400 transition-colors cursor-zoom-in">
+                                <img
+                                  src={bill.file_preview_url}
+                                  alt={t.adminReview.receiptPreview}
+                                  className="max-h-64 w-full object-contain"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none'
+                                    const fallback = e.currentTarget.parentElement?.querySelector('.receipt-fallback') as HTMLElement | null
+                                    if (fallback) fallback.style.display = 'flex'
+                                  }}
+                                />
+                                <div className="receipt-fallback hidden h-40 w-full items-center justify-center text-sm text-gray-400">
+                                  {t.adminReview.noReceipt}
+                                </div>
+                              </div>
+                              <p className="mt-1.5 text-center text-xs text-indigo-500">
+                                {t.adminReview.clickToExpand}
+                              </p>
+                            </button>
                           ) : (
                             <div className="flex h-40 items-center justify-center rounded-lg bg-gray-50 text-sm text-gray-400">
                               {t.adminReview.noReceipt}
@@ -394,6 +425,29 @@ function AdminReviewPage() {
           </div>
         )}
       </div>
+
+      {/* Lightbox overlay */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxUrl(null)}
+            className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+            aria-label="Close"
+          >
+            <X className="size-5" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt={t.adminReview.receiptPreview}
+            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }
