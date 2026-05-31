@@ -24,6 +24,7 @@ import type { Category } from '#/lib/types'
 import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { TanukiMascot } from '#/components/tanuki'
 import { LayoutGrid, Pencil, Plus, Trash2, X, Check } from 'lucide-react'
 import * as React from 'react'
 import { useTanukiPopup } from '#/components/tanuki'
@@ -236,11 +237,11 @@ function AdminCategoriesPage() {
                 ))
               ) : categories.length === 0 && editingId !== 'new' ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="py-12 text-center text-sm text-muted-foreground"
-                  >
-                    {t.adminCategories.noCategories}
+                  <TableCell colSpan={5} className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <TanukiMascot mood="idle" size="md" />
+                      <p className="text-sm text-muted-foreground">{t.adminCategories.noCategories}</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (

@@ -35,6 +35,7 @@ import { useEmployeeDashboard } from '#/hooks/queries/user'
 import { useI18n } from '#/lib/i18n'
 import type { BillStatus } from '#/lib/types'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { TanukiMascot } from '#/components/tanuki'
 import { AlertTriangle, Filter, Plus } from 'lucide-react'
 import * as React from 'react'
 
@@ -357,11 +358,11 @@ function DashboardPage() {
               ))
             ) : bills.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="py-12 text-center text-sm text-muted-foreground"
-                >
-                  {t.common.noExpenses}
+                <TableCell colSpan={6} className="py-12 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <TanukiMascot mood="searching" size="md" />
+                    <p className="text-sm text-muted-foreground">{t.common.noExpenses}</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

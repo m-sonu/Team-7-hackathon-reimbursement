@@ -29,6 +29,7 @@ import { onLogout } from '#/server/cookies'
 import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { TanukiMascot } from '#/components/tanuki'
 import { Filter, Users } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
@@ -203,11 +204,11 @@ function AdminDashboardPage() {
                 ))
               ) : employees.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-12 text-center text-sm text-muted-foreground"
-                  >
-                    {t.adminDashboard.noSubmissions}
+                  <TableCell colSpan={6} className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <TanukiMascot mood="sleeping" size="md" />
+                      <p className="text-sm text-muted-foreground">{t.adminDashboard.noSubmissions}</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (

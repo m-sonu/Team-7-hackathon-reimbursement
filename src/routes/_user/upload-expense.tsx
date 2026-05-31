@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { useTanukiPopup } from '#/components/tanuki'
+import { TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 import { useCreateBill } from '#/hooks/queries/bills'
 import { useCategories } from '#/hooks/queries/categories'
 import { useI18n } from '#/lib/i18n'
@@ -166,11 +166,14 @@ function UploadExpensePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 animate-fade-up">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {t.common.uploadExpense}
-        </h1>
-        <p className="mt-0.5 text-sm text-gray-500">{t.uploadExpense.subtitle}</p>
+      <div className="mb-6 flex items-center gap-4">
+        <TanukiMascot mood="excited" size="md" className="shrink-0" />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t.common.uploadExpense}
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500">{t.uploadExpense.subtitle}</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

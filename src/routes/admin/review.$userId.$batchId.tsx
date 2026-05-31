@@ -14,6 +14,7 @@ import { ROLES } from '#/lib/utils/constant'
 import { useI18n } from '#/lib/i18n'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { TanukiMascot } from '#/components/tanuki'
 import { ArrowLeft, FileImage, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -214,7 +215,8 @@ function AdminReviewPage() {
 
         {/* Page heading */}
         <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
+          <div className="flex items-center gap-3">
+            <TanukiMascot mood="stamping" size="sm" className="shrink-0" />
             <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
           </div>
           {statusCounts['verified'] && pivotId ? (
@@ -236,9 +238,10 @@ function AdminReviewPage() {
             ))}
           </div>
         ) : bills.length === 0 ? (
-          <p className="py-16 text-center text-sm text-muted-foreground">
-            {t.adminReview.noExpenses}
-          </p>
+          <div className="flex flex-col items-center gap-4 py-16">
+            <TanukiMascot mood="sleeping" size="md" />
+            <p className="text-sm text-muted-foreground">{t.adminReview.noExpenses}</p>
+          </div>
         ) : (
           <div className="space-y-8">
             {Object.entries(

@@ -6,10 +6,9 @@ import { loginSchema } from '#/lib/schema'
 import type { LoginSchema } from '#/lib/types'
 import { ROLES } from '#/lib/utils/constant'
 import { onLogin } from '#/server/cookies'
+import { TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { Receipt } from 'lucide-react'
-import { useTanukiPopup } from '#/components/tanuki'
 
 const DEFAULT_VALUES: LoginSchema = {
   email: '',
@@ -76,8 +75,8 @@ function Home() {
         </div>
 
         <div className="text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-700 text-white mb-4">
-            <Receipt className="size-6" />
+          <div className="flex justify-center mb-2">
+            <TanukiMascot mood="idle" size="lg" />
           </div>
           <h2 className="text-xs font-semibold tracking-widest text-indigo-600 uppercase mb-1">
             {t.common.appName}
