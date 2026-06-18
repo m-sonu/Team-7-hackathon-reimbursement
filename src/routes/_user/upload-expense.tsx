@@ -6,13 +6,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { TanukiMascot, useTanukiPopup } from '#/components/tanuki'
 import { useCreateBill } from '#/hooks/queries/bills'
 import { useCategories } from '#/hooks/queries/categories'
 import { useI18n } from '#/lib/i18n'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ImageIcon, Upload, X } from 'lucide-react'
+import {
+  BrainCircuit,
+  FileImage,
+  ScanLine,
+  Sparkles,
+  X,
+  Zap,
+} from 'lucide-react'
 import * as React from 'react'
+import { cn } from '#/lib/utils'
 
 export const Route = createFileRoute('/_user/upload-expense')({
   component: UploadExpensePage,
@@ -48,7 +55,6 @@ function UploadExpensePage() {
   const categories = categoriesRes?.data ?? []
 
   const { mutate: createBill, isPending } = useCreateBill()
-  const { showSuccess, showError } = useTanukiPopup()
 
   const addFiles = React.useCallback(
     (incoming: FileList | null) => {
@@ -138,41 +144,34 @@ function UploadExpensePage() {
       { data: formData, token },
       {
         onSuccess: (res) => {
-          showSuccess(t.uploadExpense.uploadSuccessTitle, t.uploadExpense.uploadSuccessBody)
           navigate({
             to: '/review-batch/$batchId',
             params: { batchId: String(res.data.batch_id) },
             search: { skipLoader: true },
           })
         },
-        onError: (error) => {
-          const data = error.response?.data
-          const validationErrors = data?.errors
-          const firstValidationMsg = validationErrors
-            ? (Object.values(validationErrors).flat()[0] as string | undefined)
-            : undefined
-          showError(t.uploadExpense.errorTitle, firstValidationMsg ?? data?.message ?? t.uploadExpense.errorBody)
-        },
+        onError: () => {},
       },
     )
   }
 
   const isSubmitDisabled =
-    isPending ||
-    !title.trim() ||
-    !categoryId ||
-    !currency ||
-    files.length === 0
+    isPending || !title.trim() || !categoryId || !currency || files.length === 0
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 animate-fade-up">
-      <div className="mb-6 flex items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {t.common.uploadExpense}
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-500">{t.uploadExpense.subtitle}</p>
+      {/* AI-themed header */}
+      <div className="mb-7">
+        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+          <Sparkles className="size-3" />
+          AI-Powered Extraction
         </div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {t.common.uploadExpense}
+        </h1>
+        <p className="mt-0.5 text-sm text-gray-500">
+          {t.uploadExpense.subtitle}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -192,10 +191,10 @@ function UploadExpensePage() {
                 return next
               })
             }}
-            className={`w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:ring-2 focus:ring-indigo-500 ${
+            className={`w-full rounded-lg border px-3 py-2 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:ring-2 focus:ring-violet-500 ${
               errors.title
                 ? 'border-red-400 focus:ring-red-400'
-                : 'border-gray-300 focus:border-indigo-500'
+                : 'border-gray-300 focus:border-violet-500'
             }`}
             placeholder={t.uploadExpense.formTitle}
           />
@@ -210,15 +209,20 @@ function UploadExpensePage() {
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               {t.common.category}
             </label>
-            <Select value={categoryId} onValueChange={(v) => {
-              setCategoryId(v)
-              setErrors((prev) => {
-                const next = { ...prev }
-                delete next.category
-                return next
-              })
-            }}>
-              <SelectTrigger className={errors.category ? 'border-red-400' : ''}>
+            <Select
+              value={categoryId}
+              onValueChange={(v) => {
+                setCategoryId(v)
+                setErrors((prev) => {
+                  const next = { ...prev }
+                  delete next.category
+                  return next
+                })
+              }}
+            >
+              <SelectTrigger
+                className={cn('w-full', errors.category && 'border-red-400')}
+              >
                 <SelectValue placeholder={t.common.category} />
               </SelectTrigger>
               <SelectContent>
@@ -238,15 +242,20 @@ function UploadExpensePage() {
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
               {t.uploadExpense.currency}
             </label>
-            <Select value={currency} onValueChange={(v) => {
-              setCurrency(v)
-              setErrors((prev) => {
-                const next = { ...prev }
-                delete next.currency
-                return next
-              })
-            }}>
-              <SelectTrigger className={errors.currency ? 'border-red-400' : ''}>
+            <Select
+              value={currency}
+              onValueChange={(v) => {
+                setCurrency(v)
+                setErrors((prev) => {
+                  const next = { ...prev }
+                  delete next.currency
+                  return next
+                })
+              }}
+            >
+              <SelectTrigger
+                className={cn('w-full', errors.currency && 'border-red-400')}
+              >
                 <SelectValue placeholder={t.uploadExpense.currency} />
               </SelectTrigger>
               <SelectContent>
@@ -263,34 +272,62 @@ function UploadExpensePage() {
           </div>
         </div>
 
-        {/* Upload card */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        {/* AI upload card */}
+        <div className="overflow-hidden rounded-xl border border-violet-100 bg-white shadow-sm">
           {/* Drop zone */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`m-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 transition-colors ${
+            className={`relative m-4 flex flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed px-6 py-10 transition-all duration-200 ${
               isDragging
-                ? 'border-indigo-400 bg-indigo-50'
-                : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+                ? 'border-violet-400 bg-violet-50'
+                : 'border-violet-200 bg-linear-to-br from-slate-50 via-violet-50/30 to-indigo-50/40 hover:border-violet-300'
             }`}
           >
-            <Upload className="mb-3 size-10 text-gray-400" />
-            <p className="text-sm font-medium text-gray-700">
+            {/* Neural dot grid background */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  'radial-gradient(circle, #c4b5fd44 1px, transparent 1px)',
+                backgroundSize: '22px 22px',
+              }}
+            />
+
+            {/* Icon with pulsing rings */}
+            <div className="relative mb-4 flex items-center justify-center">
+              <span
+                className="absolute size-16 rounded-full bg-violet-400/20"
+                style={{ animation: 'ai-ring-pulse 2s ease-out infinite' }}
+              />
+              <span
+                className="absolute size-12 rounded-full bg-violet-400/25"
+                style={{ animation: 'ai-ring-pulse 2s ease-out 0.4s infinite' }}
+              />
+              <span className="relative flex size-14 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-200">
+                <BrainCircuit className="size-7 text-white" />
+              </span>
+            </div>
+
+            <p className="relative text-sm font-semibold text-gray-800">
               {t.uploadExpense.dragAndDrop}
             </p>
-            <p className="mt-0.5 text-xs text-gray-400">
+            <p className="relative mt-0.5 text-xs text-gray-500">
               {t.uploadExpense.orClickToBrowse}
             </p>
+
             <Button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700"
+              className="relative mt-4 bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200"
               disabled={files.length >= MAX_FILES}
             >
+              <ScanLine className="mr-1.5 size-4" />
               {t.uploadExpense.browseFiles}
             </Button>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -301,6 +338,8 @@ function UploadExpensePage() {
             />
           </div>
 
+          {/* What AI extracts */}
+
           {/* File error */}
           {errors.files && (
             <p className="px-4 pb-2 text-xs text-red-500">{errors.files}</p>
@@ -308,18 +347,18 @@ function UploadExpensePage() {
 
           {/* File list */}
           {files.length > 0 && (
-            <div className="border-t border-gray-100 px-4 py-3">
-              <p className="mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <div className="border-t border-violet-50 px-4 py-3">
+              <p className="mb-2 text-xs font-semibold text-violet-600 uppercase tracking-wide">
                 {t.uploadExpense.uploadedFiles} ({files.length})
               </p>
               <ul className="space-y-2">
                 {files.map((file, i) => (
                   <li
                     key={`${file.name}-${i}`}
-                    className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg bg-violet-50/60 border border-violet-100 px-3 py-2"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <ImageIcon className="size-4 shrink-0 text-indigo-500" />
+                      <FileImage className="size-4 shrink-0 text-violet-500" />
                       <span className="truncate text-sm text-gray-700">
                         {file.name}
                       </span>
@@ -331,7 +370,7 @@ function UploadExpensePage() {
                       <button
                         type="button"
                         onClick={() => removeFile(i)}
-                        className="rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                        className="rounded p-0.5 text-gray-400 hover:bg-violet-100 hover:text-violet-600"
                         aria-label={t.uploadExpense.removeFile}
                       >
                         <X className="size-3.5" />
@@ -344,17 +383,39 @@ function UploadExpensePage() {
           )}
 
           {/* Submit */}
-          <div className="border-t border-gray-100 p-4">
+          <div className="border-t border-violet-50 p-4">
             <Button
               type="submit"
               disabled={isSubmitDisabled}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-100 disabled:bg-gray-300 disabled:shadow-none disabled:text-gray-500 disabled:cursor-not-allowed"
             >
-              {isPending ? '…' : t.common.submit}
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="size-4 animate-pulse" /> Analyzing…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <BrainCircuit className="size-4" /> {t.common.submit}
+                </span>
+              )}
             </Button>
           </div>
         </div>
       </form>
+
+      {/* Inline keyframe styles */}
+      <style>{`
+        @keyframes ai-scan-line {
+          0%   { top: 0%;   opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+        @keyframes ai-ring-pulse {
+          0%   { transform: scale(1);   opacity: 0.7; }
+          100% { transform: scale(1.9); opacity: 0; }
+        }
+      `}</style>
     </div>
   )
 }

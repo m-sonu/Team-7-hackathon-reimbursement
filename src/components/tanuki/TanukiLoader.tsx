@@ -5,8 +5,8 @@ interface TanukiLoaderProps {
   onComplete?: () => void
 }
 
-const FALLBACK_MS = 3000
-const MIN_MS = 1500
+const FALLBACK_MS = 1500
+const MIN_MS = 800
 
 export function TanukiLoader({ message, onComplete }: TanukiLoaderProps) {
   const videoRef = useRef<HTMLVideoElement>(null)

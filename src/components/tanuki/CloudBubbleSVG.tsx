@@ -80,22 +80,25 @@ export function CloudBubbleSVG({ title, subtitle, onClose, variant }: Props) {
           position: 'absolute',
           left: 0,
           right: 0,
-          bottom: '11%',
+          bottom: '9%',
+          zIndex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '0 15%',
-          gap: '5px',
+          padding: '0 14%',
+          gap: '6px',
         }}
       >
         <p
           style={{
-            fontSize: '17px',
+            fontSize: '16px',
             fontWeight: 800,
             color: c.titleColor,
             textAlign: 'center',
             margin: 0,
-            lineHeight: 1.25,
+            lineHeight: 1.3,
+            opacity: 1,
+            wordBreak: 'break-word',
           }}
         >
           {title}
@@ -108,7 +111,9 @@ export function CloudBubbleSVG({ title, subtitle, onClose, variant }: Props) {
               color: c.subColor,
               textAlign: 'center',
               margin: 0,
-              lineHeight: 1.3,
+              lineHeight: 1.4,
+              opacity: 1,
+              wordBreak: 'break-word',
             }}
           >
             {subtitle}

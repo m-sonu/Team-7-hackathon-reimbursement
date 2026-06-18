@@ -60,7 +60,7 @@ function TanukiStickerPopup({ visible, mood, title, subtitle, onClose }: TanukiS
   return (
     <div
       className={`fixed inset-0 z-[9999] flex items-center justify-center ${overlayClass}`}
-      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.12)', backdropFilter: 'blur(2px)' }}
       onClick={onClose}
     >
       {/* Cloud wrapper — animated, head peeks above */}

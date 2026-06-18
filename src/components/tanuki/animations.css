@@ -219,6 +219,15 @@
 .step-sweat-pulse { animation: sweat-pulse 1.5s ease-in-out infinite; }
 .step-sleepy-z    { animation: float-z 2s ease-in-out infinite; }
 
+@keyframes ai-dot-1 { 0%,100%{opacity:0.25;} 20%{opacity:1;} }
+@keyframes ai-dot-2 { 0%,100%{opacity:0.25;} 40%{opacity:1;} }
+@keyframes ai-dot-3 { 0%,100%{opacity:0.25;} 60%{opacity:1;} }
+@keyframes ai-scan  { 0%,100%{opacity:0.25;transform:scaleX(0.5);} 50%{opacity:0.8;transform:scaleX(1);} }
+.ai-dot-1  { animation: ai-dot-1 1.4s ease-in-out infinite; }
+.ai-dot-2  { animation: ai-dot-2 1.4s ease-in-out infinite; }
+.ai-dot-3  { animation: ai-dot-3 1.4s ease-in-out infinite; }
+.ai-scan   { animation: ai-scan  1.6s ease-in-out infinite; transform-origin: center; }
+
 /* ── Cloud bubble popup ──────────────────────────────────────────────────── */
 
 @keyframes cloud-pop-in {

@@ -1,7 +1,16 @@
 import { Button } from '#/components/ui/button'
-import { TanukiLoader, TanukiScanner, TanukiStepHead } from '#/components/tanuki'
+import {
+  TanukiLoader,
+  TanukiScanner,
+  TanukiStepHead,
+} from '#/components/tanuki'
 import type { StepEmotion } from '#/components/tanuki'
-import { useBatchPreview, useDeleteBill, useSubmitBatch, useUpdateBill } from '#/hooks/queries/bills'
+import {
+  useBatchPreview,
+  useDeleteBill,
+  useSubmitBatch,
+  useUpdateBill,
+} from '#/hooks/queries/bills'
 import { useI18n } from '#/lib/i18n'
 import type { BatchPreviewBill } from '#/lib/types'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,17 +19,19 @@ import { z } from 'zod'
 import {
   AlertTriangle,
   ArrowLeft,
+  BrainCircuit,
   CheckCircle2,
   Circle,
   DollarSign,
   Loader2,
   Pencil,
   Receipt,
+  ScanLine,
+  Sparkles,
   Trash2,
   X,
 } from 'lucide-react'
 import * as React from 'react'
-import { useTanukiPopup } from '#/components/tanuki'
 
 export const Route = createFileRoute('/_user/review-batch/$batchId')({
   validateSearch: z.object({ skipLoader: z.boolean().optional() }),
@@ -42,55 +53,84 @@ function ProcessingBanner({
     almostDone: string
   }
 }) {
-  const steps: Array<{ label: string; state: 'done' | 'active' | 'pending'; emotion: StepEmotion }> = [
-    { label: labels.stepUploaded, state: 'done',    emotion: 'proud'   },
-    { label: labels.stepScanning, state: 'active',  emotion: 'focused' },
-    { label: labels.stepReview,   state: 'pending', emotion: 'sleepy'  },
+  const steps: Array<{
+    label: string
+    state: 'done' | 'active' | 'pending'
+    emotion: StepEmotion
+  }> = [
+    { label: labels.stepUploaded, state: 'done', emotion: 'proud' },
+    { label: labels.stepScanning, state: 'active', emotion: 'focused' },
+    { label: labels.stepReview, state: 'pending', emotion: 'sleepy' },
   ]
 
   return (
-    <div className="rounded-xl border border-indigo-100 bg-indigo-50 py-12 text-center">
-      <p className="mb-6 text-base font-semibold text-gray-800">{labels.processingTitle}</p>
-      <div className="flex items-center justify-center mb-8">
-        {steps.map((step, i) => (
-          <React.Fragment key={step.label}>
-            {i > 0 && (
-              <div
-                className={`h-0.5 w-14 mb-6 ${step.state !== 'pending' ? 'bg-indigo-300' : 'bg-gray-200'}`}
-              />
-            )}
-            <div className="flex flex-col items-center">
-              <div
-                className={`size-10 rounded-full flex items-center justify-center border-2 overflow-hidden transition-all ${
-                  step.state === 'done'
-                    ? 'border-emerald-400'
-                    : step.state === 'active'
-                      ? 'border-purple-600'
-                      : 'border-gray-200'
-                }`}
-              >
-                <TanukiStepHead
-                  emotion={step.emotion}
-                  state={step.state === 'done' ? 'completed' : step.state === 'active' ? 'active' : 'pending'}
-                  size={40}
+    <div className="relative overflow-hidden rounded-xl border border-violet-100 bg-linear-to-br from-slate-50 via-violet-50/40 to-indigo-50/50 py-12 text-center shadow-sm">
+      {/* Neural dot grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #c4b5fd33 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }}
+      />
+      <div className="relative">
+        <div className="mb-4 flex justify-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+            <Sparkles className="size-3" />
+            AI Processing
+          </span>
+        </div>
+        <p className="mb-6 text-base font-semibold text-gray-800">
+          {labels.processingTitle}
+        </p>
+        <div className="flex items-center justify-center mb-8">
+          {steps.map((step, i) => (
+            <React.Fragment key={step.label}>
+              {i > 0 && (
+                <div
+                  className={`h-0.5 w-14 mb-6 ${step.state !== 'pending' ? 'bg-violet-300' : 'bg-gray-200'}`}
                 />
+              )}
+              <div className="flex flex-col items-center">
+                <div
+                  className={`size-10 rounded-full flex items-center justify-center border-2 overflow-hidden transition-all ${
+                    step.state === 'done'
+                      ? 'border-emerald-400'
+                      : step.state === 'active'
+                        ? 'border-violet-500'
+                        : 'border-gray-200'
+                  }`}
+                >
+                  <TanukiStepHead
+                    emotion={step.emotion}
+                    state={
+                      step.state === 'done'
+                        ? 'completed'
+                        : step.state === 'active'
+                          ? 'active'
+                          : 'pending'
+                    }
+                    size={40}
+                  />
+                </div>
+                <span
+                  className={`mt-1.5 text-xs font-medium ${
+                    step.state === 'done'
+                      ? 'text-emerald-600'
+                      : step.state === 'active'
+                        ? 'text-violet-600'
+                        : 'text-gray-400'
+                  }`}
+                >
+                  {step.label}
+                </span>
               </div>
-              <span
-                className={`mt-1.5 text-xs font-medium ${
-                  step.state === 'done'
-                    ? 'text-emerald-600'
-                    : step.state === 'active'
-                      ? 'text-indigo-600'
-                      : 'text-gray-400'
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ))}
+        </div>
+        <TanukiScanner isScanning={true} />
       </div>
-      <TanukiScanner isScanning={true} />
     </div>
   )
 }
@@ -121,7 +161,12 @@ function StatusTimeline({
   labels,
 }: {
   status: string
-  labels: { submitted: string; underReview: string; reviewed: string; reimbursed: string }
+  labels: {
+    submitted: string
+    underReview: string
+    reviewed: string
+    reimbursed: string
+  }
 }) {
   const isRejected = status.toLowerCase() === 'rejected'
   const steps = [
@@ -225,9 +270,13 @@ function BillCard({
     }
   }, [bill.bill_no, bill.vat_no, bill.amount_raw, isSaving])
 
-  const isMissingData = bill.validation_error?.includes('Missing') || bill.validation_error?.includes('unreadable')
+  const isMissingData =
+    bill.validation_error?.includes('Missing') ||
+    bill.validation_error?.includes('unreadable')
   const isFix = !isValid && isMissingData
-  const actionDisabled = isFix ? (isFixDisabled ?? false) : (isEditDisabled ?? false)
+  const actionDisabled = isFix
+    ? (isFixDisabled ?? false)
+    : (isEditDisabled ?? false)
   const actionDisabledReason = isFix ? fixDisabledReason : editDisabledReason
 
   const handleSave = () => {
@@ -257,7 +306,12 @@ function BillCard({
           </p>
           <div className="px-4 pb-4">
             {bill.file_preview_url ? (
-              <a href={bill.file_preview_url} target="_blank" rel="noreferrer" className="block">
+              <a
+                href={bill.file_preview_url}
+                target="_blank"
+                rel="noreferrer"
+                className="block"
+              >
                 <div className="relative h-44 w-full overflow-hidden rounded-lg border border-gray-200 bg-white hover:border-indigo-400 transition-colors">
                   <img
                     src={bill.file_preview_url}
@@ -265,7 +319,10 @@ function BillCard({
                     className="h-full w-full object-contain"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
-                      const fallback = e.currentTarget.parentElement?.querySelector('.receipt-fallback') as HTMLElement | null
+                      const fallback =
+                        e.currentTarget.parentElement?.querySelector(
+                          '.receipt-fallback',
+                        ) as HTMLElement | null
                       if (fallback) fallback.style.display = 'flex'
                     }}
                   />
@@ -305,9 +362,13 @@ function BillCard({
                     size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="h-6 px-2.5 text-xs bg-indigo-600 hover:bg-indigo-700"
+                    className="h-6 px-2.5 text-xs bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
                   >
-                    {isSaving ? <Loader2 className="size-3 animate-spin" /> : labels.saveBill}
+                    {isSaving ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      labels.saveBill
+                    )}
                   </Button>
                 </>
               ) : (
@@ -402,12 +463,16 @@ function BillCard({
 
               <div>
                 <p className="text-xs text-gray-500">{labels.billNo}</p>
-                <p className="text-sm font-medium text-gray-900">{bill.bill_no ?? '—'}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {bill.bill_no ?? '—'}
+                </p>
               </div>
 
               <div>
                 <p className="text-xs text-gray-500">{labels.vatNo}</p>
-                <p className="text-sm font-medium text-gray-900">{bill.vat_no ?? '—'}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {bill.vat_no ?? '—'}
+                </p>
               </div>
 
               {bill.status === 'under review' && (
@@ -428,7 +493,10 @@ function BillCard({
               )}
 
               {!isValid && bill.validation_error && (
-                <ValidationMessage error={bill.validation_error} label={labels.validationError} />
+                <ValidationMessage
+                  error={bill.validation_error}
+                  label={labels.validationError}
+                />
               )}
             </div>
           )}
@@ -472,14 +540,20 @@ function ReviewBatchPage() {
   const navigate = useNavigate()
   const token = context.token ?? ''
 
-  const { showSuccess, showError } = useTanukiPopup()
-
   const { skipLoader } = Route.useSearch()
   const [loaderDone, setLoaderDone] = React.useState(!!skipLoader)
   const { data, isLoading } = useBatchPreview(Number(batchId), token)
   const { mutate: submit, isPending: isSubmitting } = useSubmitBatch()
-  const { mutate: updateBillMutate, isPending: isUpdating, variables: updateVars } = useUpdateBill()
-  const { mutate: deleteBillMutate, isPending: isDeleting, variables: deleteVars } = useDeleteBill()
+  const {
+    mutate: updateBillMutate,
+    isPending: isUpdating,
+    variables: updateVars,
+  } = useUpdateBill()
+  const {
+    mutate: deleteBillMutate,
+    isPending: isDeleting,
+    variables: deleteVars,
+  } = useDeleteBill()
 
   const preview = data?.data
   const aiStatus = preview?.ai_processing ?? 'processing'
@@ -508,15 +582,19 @@ function ReviewBatchPage() {
     [t],
   )
 
-  const handleSave = (billId: number, data: { bill_no: string; vat_no: string; amount: string }) => {
+  const handleSave = (
+    billId: number,
+    data: { bill_no: string; vat_no: string; amount: string },
+  ) => {
     updateBillMutate(
       { billId, data, token },
       {
         onSuccess: () => {
-          showSuccess(t.reviewBatch.updateSuccessTitle, t.reviewBatch.updateSuccessBody)
-          queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
+          queryClient.invalidateQueries({
+            queryKey: ['batchPreview', Number(batchId)],
+          })
         },
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: () => {},
       },
     )
   }
@@ -526,10 +604,11 @@ function ReviewBatchPage() {
       { billId, token },
       {
         onSuccess: () => {
-          showSuccess(t.reviewBatch.removeSuccessTitle, t.reviewBatch.removeSuccessBody)
-          queryClient.invalidateQueries({ queryKey: ['batchPreview', Number(batchId)] })
+          queryClient.invalidateQueries({
+            queryKey: ['batchPreview', Number(batchId)],
+          })
         },
-        onError: () => showError(t.reviewBatch.errorTitle, t.reviewBatch.errorBody),
+        onError: () => {},
       },
     )
   }
@@ -539,15 +618,11 @@ function ReviewBatchPage() {
       { batchId: Number(batchId), token },
       {
         onSuccess: () => {
-          showSuccess(t.reviewBatch.submitSuccessTitle, t.reviewBatch.submitSuccessBody)
           queryClient.invalidateQueries({ queryKey: ['employeeDashboard'] })
           queryClient.invalidateQueries({ queryKey: ['userBills'] })
           navigate({ to: '/dashboard' })
         },
-        onError: (error) => {
-          const msg = error.response?.data.message || ''
-          showError(t.reviewBatch.errorTitle, msg || t.reviewBatch.errorBody)
-        },
+        onError: () => {},
       },
     )
   }
@@ -556,7 +631,8 @@ function ReviewBatchPage() {
   const invalidBills = preview?.invalid_bills ?? []
   const currency = preview?.currency ?? ''
   const allBillsUnderReview =
-    validBills.length > 0 && validBills.every((b) => b.status === 'under review')
+    validBills.length > 0 &&
+    validBills.every((b) => b.status === 'under review')
 
   const fixedBillNos = React.useMemo(
     () =>
@@ -568,7 +644,9 @@ function ReviewBatchPage() {
     [invalidBills],
   )
 
-  const getEditDisabledReason = (bill: BatchPreviewBill): string | undefined => {
+  const getEditDisabledReason = (
+    bill: BatchPreviewBill,
+  ): string | undefined => {
     if (bill.status === 'failed') return 'Cannot edit a failed bill'
     if (bill.status === 'approved' || bill.status === 'rejected')
       return 'Cannot edit an approved or rejected bill'
@@ -581,7 +659,8 @@ function ReviewBatchPage() {
 
   const getFixDisabledReason = (bill: BatchPreviewBill): string | undefined => {
     const hasMissingData =
-      bill.validation_error?.includes('Missing') || bill.validation_error?.includes('unreadable')
+      bill.validation_error?.includes('Missing') ||
+      bill.validation_error?.includes('unreadable')
     if (hasMissingData) return undefined
     if (bill.status !== 'failed') return 'This bill has already been processed'
     if (bill.bill_no !== null && fixedBillNos.has(bill.bill_no))
@@ -595,7 +674,7 @@ function ReviewBatchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-violet-50/20 to-indigo-50/30 pb-24">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 animate-fade-up">
         {/* Back link */}
         <div className="mb-6">
@@ -610,7 +689,13 @@ function ReviewBatchPage() {
 
         {/* Header */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">{t.reviewBatch.title}</h1>
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+            <BrainCircuit className="size-3" />
+            AI-Powered Review
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t.reviewBatch.title}
+          </h1>
           {preview && (
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
               <span className="font-medium text-gray-700">{preview.title}</span>
@@ -649,11 +734,24 @@ function ReviewBatchPage() {
 
             {/* AI processing failed banner */}
             {isFailed && (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50 py-14 text-center">
-                <AlertTriangle className="mb-4 size-10 text-red-500" />
-                <p className="text-base font-semibold text-gray-900">Processing Failed</p>
+              <div className="relative overflow-hidden flex flex-col items-center justify-center rounded-xl border border-red-100 bg-linear-to-br from-red-50 to-orange-50/50 py-14 text-center shadow-sm">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle, #fca5a533 1px, transparent 1px)',
+                    backgroundSize: '22px 22px',
+                  }}
+                />
+                <div className="relative flex size-14 items-center justify-center rounded-full bg-linear-to-br from-red-400 to-orange-500 shadow-lg shadow-red-100 mb-4">
+                  <AlertTriangle className="size-7 text-white" />
+                </div>
+                <p className="text-base font-semibold text-gray-900">
+                  Processing Failed
+                </p>
                 <p className="mt-1 text-sm text-gray-500 max-w-xs">
-                  There was an error processing the bills in this batch. Please try uploading again.
+                  There was an error processing the bills in this batch. Please
+                  try uploading again.
                 </p>
               </div>
             )}
@@ -666,9 +764,15 @@ function ReviewBatchPage() {
             {/* Valid bills */}
             {validBills.length > 0 && (
               <section>
-                <h2 className="mb-3 text-sm font-semibold text-gray-700">
-                  {t.reviewBatch.validBills} ({validBills.length})
-                </h2>
+                <div className="mb-3 flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-gray-700">
+                    {t.reviewBatch.validBills} ({validBills.length})
+                  </h2>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                    <CheckCircle2 className="size-3" />
+                    AI Verified
+                  </span>
+                </div>
                 <div className="space-y-3">
                   {validBills.map((bill) => {
                     const editDisabledReason = getEditDisabledReason(bill)
@@ -678,7 +782,9 @@ function ReviewBatchPage() {
                         bill={bill}
                         isValid
                         isSaving={isUpdating && updateVars?.billId === bill.id}
-                        isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                        isRemoving={
+                          isDeleting && deleteVars?.billId === bill.id
+                        }
                         onSave={(data) => handleSave(bill.id, data)}
                         onRemove={() => handleRemove(bill.id)}
                         labels={cardLabels}
@@ -694,9 +800,15 @@ function ReviewBatchPage() {
             {/* Invalid bills */}
             {invalidBills.length > 0 && (
               <section>
-                <h2 className="mb-3 text-sm font-semibold text-red-600">
-                  {t.reviewBatch.invalidBills} ({invalidBills.length})
-                </h2>
+                <div className="mb-3 flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-red-600">
+                    {t.reviewBatch.invalidBills} ({invalidBills.length})
+                  </h2>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+                    <AlertTriangle className="size-3" />
+                    Needs Attention
+                  </span>
+                </div>
                 <div className="space-y-3">
                   {invalidBills.map((bill) => {
                     const editDisabledReason = getEditDisabledReason(bill)
@@ -707,7 +819,9 @@ function ReviewBatchPage() {
                         bill={bill}
                         isValid={false}
                         isSaving={isUpdating && updateVars?.billId === bill.id}
-                        isRemoving={isDeleting && deleteVars?.billId === bill.id}
+                        isRemoving={
+                          isDeleting && deleteVars?.billId === bill.id
+                        }
                         onSave={(data) => handleSave(bill.id, data)}
                         onRemove={() => handleRemove(bill.id)}
                         labels={cardLabels}
@@ -726,28 +840,43 @@ function ReviewBatchPage() {
       </div>
 
       {/* Fixed footer */}
-      {loaderDone && !isLoading && aiStatus === 'success' && preview && !allBillsUnderReview && (
-        <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 py-4 shadow-lg">
-          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                {t.reviewBatch.totalAmount}
-              </p>
-              <p className="text-xl font-bold text-gray-900">
-                {formatTotal(preview.totals.valid)}
-              </p>
+      {loaderDone &&
+        !isLoading &&
+        aiStatus === 'success' &&
+        preview &&
+        !allBillsUnderReview && (
+          <div className="fixed bottom-0 left-0 right-0 border-t border-violet-100 bg-white/90 backdrop-blur-sm px-4 py-4 shadow-lg">
+            <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  {t.reviewBatch.totalAmount}
+                </p>
+                <p className="text-xl font-bold text-gray-900">
+                  {formatTotal(preview.totals.valid)}
+                </p>
+              </div>
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting || validBills.length === 0}
+                className="bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 disabled:opacity-50 px-6"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="size-4 animate-spin mr-2" />
+                ) : (
+                  <ScanLine className="size-4 mr-2" />
+                )}
+                {t.reviewBatch.submitForReimbursement}
+              </Button>
             </div>
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting || validBills.length === 0}
-              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-6"
-            >
-              {isSubmitting ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
-              {t.reviewBatch.submitForReimbursement}
-            </Button>
           </div>
-        </div>
-      )}
+        )}
+
+      <style>{`
+        @keyframes ai-ring-pulse {
+          0%   { transform: scale(1);   opacity: 0.7; }
+          100% { transform: scale(1.9); opacity: 0; }
+        }
+      `}</style>
     </div>
   )
 }
